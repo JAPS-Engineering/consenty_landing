@@ -1,0 +1,5 @@
+# Consenty — https://consenty.japs.ing
+User-agent: *
+Allow: /
+
+Sitemap: https://consenty.japs.ing/sitemap.xml

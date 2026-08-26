@@ -247,12 +247,32 @@ const preventDefault = (e) => e.preventDefault();
  * ------------------------------------------------------------------ */
 
 const BAR_KEY = 'consenty:deadline-bar-dismissed';
+const pad2 = (n) => String(n).padStart(2, '0');
+
+/** Ticks every second until DEADLINE; never goes negative. */
+function useCountdown(target) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, target - new Date()));
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(Math.max(0, target - new Date())), 1000);
+    return () => clearInterval(id);
+  }, [target]);
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60
+  };
+}
 
 /** The one urgency device in the system. Dismissed for the rest of the session. */
 function DeadlineBar({ onNavigate }) {
   const [visible, setVisible] = useState(() => {
     try { return window.sessionStorage.getItem(BAR_KEY) !== '1'; } catch (e) { return true; }
   });
+  const { days, hours, minutes, seconds } = useCountdown(DEADLINE);
 
   const dismiss = () => {
     setVisible(false);
@@ -270,6 +290,19 @@ function DeadlineBar({ onNavigate }) {
         <MonoLabel tone="ink" style={{ fontSize: 12 }}>1 dic 2026</MonoLabel>
         <span style={{ fontSize: 13.5, lineHeight: 1.35, color: 'var(--color-ink)', textWrap: 'pretty' }}>
           La Ley 21.719 de protección de datos personales entra en vigencia el 1 de diciembre.
+        </span>
+        <span
+          role="timer"
+          aria-label={`Quedan ${days} días, ${hours} horas, ${minutes} minutos y ${seconds} segundos`}
+          style={{
+            display: 'inline-flex', alignItems: 'baseline', gap: '.5em', whiteSpace: 'nowrap',
+            background: 'var(--color-coral)', color: '#fff', padding: '3px 10px',
+            borderRadius: 'var(--radius-pill)', fontFamily: 'var(--font-mono)',
+            fontSize: 12.5, fontWeight: 600, letterSpacing: '.01em', fontVariantNumeric: 'tabular-nums'
+          }}
+        >
+          <span>{days}d</span>
+          <span>{pad2(hours)}:{pad2(minutes)}:{pad2(seconds)}</span>
         </span>
         <a
           href="#/normativa"
@@ -423,6 +456,20 @@ function SiteFooter({ navigate }) {
           justifyContent: 'space-between', gap: '12px 24px', color: 'var(--text-muted)', fontSize: 12
         }}>
           <span>© 2026 Consenty SpA · Santiago de Chile</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <a
+              href="#" data-plain onClick={preventDefault} aria-label="LinkedIn de Consenty"
+              style={{ color: 'inherit', display: 'flex', alignItems: 'center', opacity: .72 }}
+            >
+              <Icon name="linkedin" size={18} tone="light" />
+            </a>
+            <a
+              href="#" data-plain onClick={preventDefault} aria-label="Escribir a Consenty por correo"
+              style={{ color: 'inherit', display: 'flex', alignItems: 'center', opacity: .72 }}
+            >
+              <Icon name="mail" size={18} tone="light" />
+            </a>
+          </span>
           <span style={{ display: 'flex', gap: 24 }}>
             <a href="#" data-plain onClick={preventDefault} style={{ color: 'inherit' }}>Privacidad</a>
             <a href="#" data-plain onClick={preventDefault} style={{ color: 'inherit' }}>Términos</a>
@@ -947,8 +994,8 @@ function ModulosScreen({ navigate }) {
           autónoma y transparente.
         </p>
         {/* 1px grid gap over a rule-colored ground: containment by rules, not by boxes. */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,260px),1fr))',
+        <div className="cns-barcop-grid" style={{
+          display: 'grid',
           gap: 1, background: 'var(--border-utility)', border: '1px solid var(--border-utility)',
           borderRadius: 'var(--radius-lg)', overflow: 'hidden'
         }}>

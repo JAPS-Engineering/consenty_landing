@@ -32,6 +32,10 @@
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
   .cns-skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--color-ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
   .cns-skip-link:focus{left:12px;top:12px}
+  /* BARCOP: fixed 3-up grid (2 rows of 3), collapsing on smaller viewports. */
+  .cns-barcop-grid{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:860px){.cns-barcop-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.cns-barcop-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>

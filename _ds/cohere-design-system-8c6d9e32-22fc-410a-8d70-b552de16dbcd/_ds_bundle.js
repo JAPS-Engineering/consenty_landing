@@ -767,10 +767,16 @@ function DarkFeatureBand({
     style: {
       background: bg,
       color: 'var(--color-on-dark)',
-      padding: 'var(--space-section)',
+      padding: 'var(--space-section) 0',
       borderRadius: rounded ? 'var(--radius-lg)' : 0,
       fontFamily: 'var(--font-ui)',
       ...style
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 1440,
+      margin: '0 auto',
+      padding: `0 clamp(20px,4vw,40px)`
     }
   }, eyebrow ? /*#__PURE__*/React.createElement("span", {
     style: {
@@ -811,7 +817,7 @@ function DarkFeatureBand({
     style: {
       marginTop: 'var(--space-56)'
     }
-  }, children) : null);
+  }, children) : null));
 }
 Object.assign(__ds_scope, { DarkFeatureBand });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/marketing/DarkFeatureBand.jsx", error: String((e && e.message) || e) }); }

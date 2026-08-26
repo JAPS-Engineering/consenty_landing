@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Consenty — Consentimiento a prueba de auditoría</title>
+<meta name="description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable en tiempo real para cumplir la Ley 21.719 sin frenar al negocio.">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://consenty.japs.ing/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Consenty">
+<meta property="og:locale" content="es_CL">
+<meta property="og:title" content="Consenty — Consentimiento a prueba de auditoría">
+<meta property="og:description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar — sin frenar al negocio.">
+<meta property="og:url" content="https://consenty.japs.ing/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+<!-- Consenty Design System — single entry point (@imports the token files). -->
+<link rel="stylesheet" href="_ds/cohere-design-system-8c6d9e32-22fc-410a-8d70-b552de16dbcd/styles.css">
+
+<style>
+  body{overflow-x:hidden}
+  img,svg{max-width:100%}
+  /* The design system keeps nav and footer links undecorated; base.css underlines every <a>. */
+  a[data-plain]{text-decoration:none}
+  /* Flat by contract: no shadows anywhere in the UI. */
+  button{font-family:var(--font-ui)}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+  .cns-skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--color-ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
+  .cns-skip-link:focus{left:12px;top:12px}
+</style>
+</head>
+<body>
+<a class="cns-skip-link" href="#contenido">Saltar al contenido</a>
+<div id="root"></div>
+
+<!-- React must be on window before the design system bundle evaluates. -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="_ds/cohere-design-system-8c6d9e32-22fc-410a-8d70-b552de16dbcd/_ds_bundle.js"></script>
+<!-- The compiled namespace is generated from the project title; every source file reads window.Consenty. -->
+<script>window.Consenty = window.CohereDesignSystem_8c6d9e;</script>
+
+<!-- In-browser JSX. For production, precompile app.jsx and drop this script. -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>

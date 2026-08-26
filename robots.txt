@@ -1,4 +1,4 @@
-# Consenty — https://consenty.japs.ing
+# Consenty | https://consenty.japs.ing
 User-agent: *
 Allow: /
 

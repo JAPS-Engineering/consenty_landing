@@ -1,4 +1,4 @@
-# Consenty — sitio web
+# Consenty | sitio web
 
 Implementación de `Consenty Web.dc.html`, el design canvas del proyecto Claude Design
 [Consenty Web](https://claude.ai/design/p/3738a235-50c2-4b22-896f-75fb9abe3791).

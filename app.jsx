@@ -1,4 +1,4 @@
-/* Consenty — consenty.japs.ing
+/* Consenty | consenty.japs.ing
  *
  * Implementation of the "Consenty Web.dc.html" design canvas.
  * Every component comes from the Consenty Design System bundle, read through the
@@ -393,7 +393,7 @@ function SiteHeader({ route, navigate, mobile }) {
         }}>
           <a
             data-plain {...navLinkProps('inicio', navigate)}
-            aria-label="Consenty — ir al inicio"
+            aria-label="Consenty | ir al inicio"
             style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}
           >
             <Wordmark size={mobile ? 20 : 22} />

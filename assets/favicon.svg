@@ -1,8 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="705 -20 210 210" role="img" aria-label="Consenty">
+  <rect x="705" y="-20" width="210" height="210" rx="42" fill="#ffffff"/>
   <!-- The terminal "y" swoosh of the Consenty lockup, isolated as the app mark.
-       Geometry is copied verbatim from components/core/Wordmark.jsx (viewBox 0 0 907 176). -->
-  <path d="M743.378 141H714.222C720.904 124.419 732.265 107.287 742.5 95C746.018 95.6976 748.05 102.781 749.905 104.815C746.5 88.5 728.5 73 713 68.5V51.5C737 53.5 747 66 760.5 75.5C808.424 33.3631 871.721 26.921 907 28.085C816.834 40.9896 760.349 108.739 743.378 141Z" fill="#4338CA"/>
-  <path d="M743.378 141H714.222C720.904 124.419 732.265 107.287 742.5 95C746.018 95.6976 748.05 102.781 749.905 104.815C746.5 88.5 728.5 73 713 68.5V51.5C737 53.5 747 66 760.5 75.5C808.424 33.3631 871.721 26.921 907 28.085C816.834 40.9896 760.349 108.739 743.378 141Z" fill="url(#consenty-favicon-swoosh)"/>
+       Geometry is copied verbatim from components/core/Wordmark.jsx (viewBox 0 0 907 176).
+       Scaled down and re-centered within the group to leave padding around the white square. -->
+  <g transform="translate(810 85) scale(0.72) translate(-810 -85)">
+    <path d="M743.378 141H714.222C720.904 124.419 732.265 107.287 742.5 95C746.018 95.6976 748.05 102.781 749.905 104.815C746.5 88.5 728.5 73 713 68.5V51.5C737 53.5 747 66 760.5 75.5C808.424 33.3631 871.721 26.921 907 28.085C816.834 40.9896 760.349 108.739 743.378 141Z" fill="#4338CA"/>
+    <path d="M743.378 141H714.222C720.904 124.419 732.265 107.287 742.5 95C746.018 95.6976 748.05 102.781 749.905 104.815C746.5 88.5 728.5 73 713 68.5V51.5C737 53.5 747 66 760.5 75.5C808.424 33.3631 871.721 26.921 907 28.085C816.834 40.9896 760.349 108.739 743.378 141Z" fill="url(#consenty-favicon-swoosh)"/>
+  </g>
   <defs>
     <linearGradient id="consenty-favicon-swoosh" x1="880.455" y1="28" x2="754.995" y2="107.573" gradientUnits="userSpaceOnUse">
       <stop offset="0.0480769" stop-color="#FF79BA"/>

@@ -74,15 +74,11 @@ const NAV = [
 
 const ROUTES = NAV.map(([r]) => r).concat('demo');
 
-const PAGE_TITLES = {
-  inicio: 'Consenty — Consentimiento a prueba de auditoría',
-  plataforma: 'Plataforma — Consenty',
-  modulos: 'Módulos — Consenty',
-  normativa: 'Normativa · Ley 21.719 — Consenty',
-  recursos: 'Recursos — Consenty',
-  implementacion: 'Implementación — Consenty',
-  demo: 'Agendar demo — Consenty'
-};
+/* Titles, descriptions and paths live in seo.json — build.mjs emits them as seo.js,
+   which index.html loads before this file. One table feeds both the served HTML
+   and the client-side navigation, so they can never drift apart. */
+const SEO = (window.CONSENTY_SEO && window.CONSENTY_SEO.pages) || {};
+const SITE = (window.CONSENTY_SEO && window.CONSENTY_SEO.site) || {};
 
 const CLIENT_NAMES = ['Andesbank', 'Vitalis', 'Nortec', 'Grupo Araucaria', 'Cimar'];
 const INTEGRATIONS = ['E-commerce', 'CRM', 'API'];
@@ -202,32 +198,85 @@ const FOOTER_COLUMNS = [
  * Hooks
  * ------------------------------------------------------------------ */
 
-function readRoute() {
-  const raw = (window.location.hash || '').replace(/^#\/?/, '');
-  return ROUTES.indexOf(raw) !== -1 ? raw : 'inicio';
+/** Path for a route: 'inicio' is the site root, everything else a real directory. */
+function hrefFor(route) {
+  return route === 'inicio' ? '/' : '/' + route + '/';
 }
 
-/** Hash routing: real URLs, working back button, deep links into any screen. */
+function readRoute() {
+  const slug = (window.location.pathname || '/').replace(/^\/+|\/+$/g, '');
+  if (!slug) return 'inicio';
+  return ROUTES.indexOf(slug) !== -1 ? slug : 'inicio';
+}
+
+/* Links shared before the move to real paths still point at #/plataforma.
+   Rewrite them in place — replace(), not assign(), so the old URL leaves history. */
+(function redirectLegacyHash() {
+  const raw = (window.location.hash || '').replace(/^#\/?/, '');
+  if (raw && ROUTES.indexOf(raw) !== -1) window.location.replace(hrefFor(raw));
+})();
+
+/** Keeps the served <head> and the client-side navigation showing the same metadata. */
+function syncHead(route) {
+  const page = SEO[route];
+  if (!page) return;
+  const origin = SITE.origin || window.location.origin;
+  const url = origin + page.path;
+
+  document.title = page.title;
+
+  const set = (selector, attr, value) => {
+    const el = document.head.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  };
+  set('meta[name="description"]', 'content', page.description);
+  set('link[rel="canonical"]', 'href', url);
+  set('meta[property="og:url"]', 'content', url);
+  set('meta[property="og:title"]', 'content', page.title);
+  set('meta[property="og:description"]', 'content', page.description);
+  set('meta[name="twitter:title"]', 'content', page.title);
+  set('meta[name="twitter:description"]', 'content', page.description);
+}
+
+/** History routing: one indexable URL per screen, working back button, deep links. */
 function useRoute() {
   const [route, setRoute] = useState(readRoute);
 
   useEffect(() => {
-    const onHash = () => setRoute(readRoute());
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    const onPop = () => setRoute(readRoute());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   useEffect(() => {
-    document.title = PAGE_TITLES[route];
+    syncHead(route);
     window.scrollTo(0, 0);
   }, [route]);
 
   const navigate = useCallback((next) => {
-    if (readRoute() === next) window.scrollTo(0, 0);
-    window.location.hash = '#/' + next;
+    if (readRoute() === next) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    window.history.pushState(null, '', hrefFor(next));
+    setRoute(next);
   }, []);
 
   return [route, navigate];
+}
+
+/* Intercept only the clicks the browser would handle as same-tab navigation.
+   Ctrl/cmd/shift-click and middle-click fall through to the real href, which is
+   also what a crawler follows. */
+function navLinkProps(route, navigate) {
+  return {
+    href: hrefFor(route),
+    onClick: (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      navigate(route);
+    }
+  };
 }
 
 function useViewportWidth() {
@@ -343,8 +392,7 @@ function SiteHeader({ route, navigate, mobile }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16
         }}>
           <a
-            href="#/inicio" data-plain
-            onClick={() => navigate('inicio')}
+            data-plain {...navLinkProps('inicio', navigate)}
             aria-label="Consenty — ir al inicio"
             style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}
           >
@@ -359,8 +407,7 @@ function SiteHeader({ route, navigate, mobile }) {
               >
                 {NAV.map(([r, label]) => (
                   <a
-                    key={r} href={'#/' + r} data-plain
-                    onClick={() => navigate(r)}
+                    key={r} data-plain {...navLinkProps(r, navigate)}
                     aria-current={route === r ? 'page' : undefined}
                     style={{ fontSize: 14, color: linkColor(r), transition: 'var(--transition-color)' }}
                   >{label}</a>
@@ -398,8 +445,7 @@ function SiteHeader({ route, navigate, mobile }) {
           <div style={{ padding: `8px ${GUTTER} 24px`, display: 'grid', gap: 0 }}>
             {NAV.map(([r, label]) => (
               <a
-                key={r} href={'#/' + r} data-plain
-                onClick={() => navigate(r)}
+                key={r} data-plain {...navLinkProps(r, navigate)}
                 aria-current={route === r ? 'page' : undefined}
                 style={{ fontSize: 17, color: 'var(--color-ink)', padding: '16px 0', borderBottom: '1px solid var(--border-subtle)' }}
               >{label}</a>
@@ -441,8 +487,7 @@ function SiteFooter({ navigate }) {
               {links.map(([label, target]) => (
                 <a
                   key={label} data-plain
-                  href={target ? '#/' + target : '#'}
-                  onClick={target ? () => navigate(target) : preventDefault}
+                  {...(target ? navLinkProps(target, navigate) : { href: '#', onClick: preventDefault })}
                   style={{ color: 'var(--text-muted)', fontSize: 13 }}
                 >{label}</a>
               ))}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+
+<!-- Third parties the design system still reaches for: web fonts (tokens/fonts.css)
+     and the Lucide icon CDN (_ds_bundle.js). Open the connections early. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+
+<!-- seo:start — GENERADO por build.mjs — no editar a mano. -->
+<title>Página no encontrada — Consenty</title>
+<meta name="robots" content="noindex,follow">
+<!-- seo:end -->
+
+<link rel="preload" href="/_ds/cohere-design-system-8c6d9e32-22fc-410a-8d70-b552de16dbcd/_ds_bundle.js" as="script">
+<link rel="preload" href="/app.js" as="script">
+
+<!-- Consenty Design System — single entry point (@imports the token files). -->
+<link rel="stylesheet" href="/_ds/cohere-design-system-8c6d9e32-22fc-410a-8d70-b552de16dbcd/styles.css">
+
+<style>
+  body{overflow-x:hidden}
+  img,svg{max-width:100%}
+  /* The design system keeps nav and footer links undecorated; base.css underlines every <a>. */
+  a[data-plain]{text-decoration:none}
+  /* Flat by contract: no shadows anywhere in the UI. */
+  button{font-family:var(--font-ui)}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+  .cns-skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--color-ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
+  .cns-skip-link:focus{left:12px;top:12px}
+  /* BARCOP: fixed 3-up grid (2 rows of 3), collapsing on smaller viewports. */
+  .cns-barcop-grid{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:860px){.cns-barcop-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.cns-barcop-grid{grid-template-columns:1fr}}
+  /* No-JS fallback: readable content and real links for crawlers that don't render. */
+  .cns-noscript{max-width:720px;margin:0 auto;padding:64px 24px;font-family:var(--font-ui),system-ui,sans-serif;line-height:1.6}
+  .cns-noscript nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px}
+</style>
+</head>
+<body>
+<a class="cns-skip-link" href="#contenido">Saltar al contenido</a>
+<div id="root"></div>
+
+<noscript>
+  <div class="cns-noscript">
+    <h1>Consenty — consentimiento a prueba de auditoría</h1>
+    <p>
+      Consenty es el registro único de consentimientos para empresas en Chile: captura el
+      consentimiento en web, e-commerce, app y canales offline, y guarda de cada uno el sello de
+      tiempo, la versión exacta de los términos y un hash de evidencia inalterable. El panel DPO
+      supervisa plazos y alertas, y el portal de titulares resuelve los seis derechos BARCOP
+      dentro de los 30 días que exige la Ley 21.719, vigente desde el 1 de diciembre de 2026.
+    </p>
+    <p>Este sitio necesita JavaScript para su versión interactiva. Secciones disponibles:</p>
+    <nav aria-label="Secciones del sitio">
+      <a href="/">Inicio</a>
+      <a href="/plataforma/">Plataforma</a>
+      <a href="/modulos/">Módulos</a>
+      <a href="/normativa/">Normativa · Ley 21.719</a>
+      <a href="/recursos/">Recursos</a>
+      <a href="/implementacion/">Implementación</a>
+      <a href="/demo/">Agendar demo</a>
+    </nav>
+  </div>
+</noscript>
+
+<!-- React is self-hosted: no third party sits in the critical path of the first render. -->
+<script src="/vendor/react.production.min.js"></script>
+<script src="/vendor/react-dom.production.min.js"></script>
+<script src="/_ds/cohere-design-system-8c6d9e32-22fc-410a-8d70-b552de16dbcd/_ds_bundle.js"></script>
+<!-- The compiled namespace is generated from the project title; every source file reads window.Consenty. -->
+<script>window.Consenty = window.CohereDesignSystem_8c6d9e;</script>
+
+<!-- Generated from seo.json — the router reads titles and descriptions from here. -->
+<script src="/seo.js"></script>
+<!-- Precompiled from app.jsx by build.mjs. Run npm run build after editing the source. -->
+<script src="/app.js"></script>
+</body>
+</html>

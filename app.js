@@ -406,7 +406,7 @@ function SiteHeader({
   }, React.createElement("a", _extends({
     "data-plain": true
   }, navLinkProps('inicio', navigate), {
-    "aria-label": "Consenty \u2014 ir al inicio",
+    "aria-label": "Consenty | ir al inicio",
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -718,7 +718,7 @@ function HomeScreen({
       fontSize: 'clamp(16px,1.6vw,18px)',
       textWrap: 'pretty'
     }
-  }, "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar, sin frenar al negocio. Trazabilidad auditable en tiempo real para un proceso que la ley exige."), React.createElement("div", {
+  }, "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar \u2014 sin frenar al negocio. Trazabilidad auditable en tiempo real para un proceso que la ley exige."), React.createElement("div", {
     style: {
       display: 'flex',
       flexWrap: 'wrap',

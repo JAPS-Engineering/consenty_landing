@@ -3,7 +3,7 @@
 Implementación de `Consenty Web.dc.html`, el design canvas del proyecto Claude Design
 [Consenty Web](https://claude.ai/design/p/3738a235-50c2-4b22-896f-75fb9abe3791).
 
-Sitio estático con siete pantallas, construido íntegramente sobre el **Consenty Design
+Sitio estático con ocho pantallas, construido íntegramente sobre el **Consenty Design
 System** (`_ds/cohere-design-system-8c6d9e32-…/`). Cada pantalla tiene su propia URL real e
 indexable; el SPA se monta encima y navega sin recargar.
 
@@ -41,7 +41,8 @@ GitHub Pages sirve estáticos y no ejecuta build, así que **todo el output se c
 
 ## Pantallas
 
-`inicio` · `plataforma` · `modulos` · `normativa` · `recursos` · `implementacion` · `demo`
+`inicio` · `plataforma` · `modulos` · `normativa` · `recursos` · `implementacion` · `demo` ·
+`verificacion`
 
 ## Diferencias respecto al design canvas
 
@@ -67,6 +68,21 @@ y añade lo que un sitio real necesita:
    La implementación usa `var(--color-indigo)`, `var(--surface-card-stone)`,
    `var(--radius-lg)`. Los `clamp()` responsivos y las medidas en `ch` se conservan literales
    porque son decisiones de layout del canvas, no tokens.
+7. **Prueba de conectividad real (`verificacion`).** El canvas comprobaba el desafío de
+   Cloudflare cargando un `<img>` contra un endpoint que responde JavaScript, no una imagen —
+   el `onerror` se dispara siempre, con o sin bloqueador, así que el diagnóstico reportaba
+   "bloqueo" en el 100% de las visitas. La implementación carga el script real de Turnstile
+   (`challenges.cloudflare.com/turnstile/v0/api.js`), que es justamente el recurso que un
+   bloqueador de anuncios corta en la práctica.
+8. **Scroll a anclas internas (`verificacion`).** Es la primera pantalla con enlaces a
+   secciones de sí misma (`#empresa`, `#bloqueador`). Se agregó `scroll-behavior: smooth` y
+   `scroll-margin-top` globales en `index.html` para que el header sticky no tape el destino.
+9. **Footer: "Documentación API" reemplazado.** Ese link de la columna Recursos no tenía
+   destino (`null`); el canvas lo reemplaza por "Verificación de formularios", que sí navega.
+10. **Props de edición del canvas descartadas (`verificacion`).** `mostrarBarraPlazo`,
+    `mostrarDiagnostico` y `tonoBandaCierre` no se exponen como props de React — la barra de
+    plazo ya es global y el diagnóstico siempre está visible, mismo criterio que las demás
+    pantallas.
 
 ## Notas de integración
 

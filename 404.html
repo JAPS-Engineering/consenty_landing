@@ -33,7 +33,9 @@
   a[data-plain]{text-decoration:none}
   /* Flat by contract: no shadows anywhere in the UI. */
   button{font-family:var(--font-ui)}
-  @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+  html{scroll-behavior:smooth}
+  [id]{scroll-margin-top:120px}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
   .cns-skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--color-ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
   .cns-skip-link:focus{left:12px;top:12px}
   /* BARCOP: fixed 3-up grid (2 rows of 3), collapsing on smaller viewports. */
@@ -43,6 +45,15 @@
   /* No-JS fallback: readable content and real links for crawlers that don't render. */
   .cns-noscript{max-width:720px;margin:0 auto;padding:64px 24px;font-family:var(--font-ui),system-ui,sans-serif;line-height:1.6}
   .cns-noscript nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px}
+  /* Logo marquee — same mechanism as japs.ing's LogoWall: a duplicated flex track
+     translated -50% in a loop, so the seam between the two copies is invisible. */
+  .cns-logo-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+  .cns-logo-track{display:flex;align-items:center;gap:clamp(40px,6vw,64px);width:max-content;animation:cns-logo-scroll 32s linear infinite}
+  @keyframes cns-logo-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .cns-logo-marquee:hover .cns-logo-track,.cns-logo-marquee:focus-within .cns-logo-track{animation-play-state:paused}
+  .cns-logo-cell{flex:0 0 auto;display:inline-flex;align-items:center;font-family:var(--font-ui);font-size:var(--text-feature-heading-size);letter-spacing:-0.32px;color:var(--color-ink);opacity:.62;transition:opacity 140ms ease}
+  .cns-logo-cell:hover{opacity:1}
+  .cns-logo-cell__img{display:block;height:24px;width:auto}
 </style>
 </head>
 <body>
@@ -68,6 +79,7 @@
       <a href="/recursos/">Recursos</a>
       <a href="/implementacion/">Implementación</a>
       <a href="/demo/">Agendar demo</a>
+      <a href="/verificacion/">Verificación de formularios</a>
     </nav>
   </div>
 </noscript>

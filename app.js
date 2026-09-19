@@ -5,6 +5,7 @@ const {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
   Fragment
 } = React;
 const DS = window.Consenty || {};
@@ -12,7 +13,6 @@ const {
   Wordmark,
   Button,
   Icon,
-  TrustLogoStrip,
   FooterNewsletter,
   BlogFilterChip,
   ResearchTable,
@@ -84,10 +84,23 @@ function CheckRow({
 }
 const DEADLINE = new Date('2026-12-01T00:00:00');
 const NAV = [['inicio', 'Inicio'], ['plataforma', 'Plataforma'], ['modulos', 'Módulos'], ['normativa', 'Normativa'], ['recursos', 'Recursos'], ['implementacion', 'Implementación']];
-const ROUTES = NAV.map(([r]) => r).concat('demo');
+const ROUTES = NAV.map(([r]) => r).concat('demo', 'verificacion');
 const SEO = window.CONSENTY_SEO && window.CONSENTY_SEO.pages || {};
 const SITE = window.CONSENTY_SEO && window.CONSENTY_SEO.site || {};
-const CLIENT_NAMES = ['Andesbank', 'Vitalis', 'Nortec', 'Grupo Araucaria', 'Cimar'];
+const CLIENT_NAMES = [{
+  name: 'Andesbank'
+}, {
+  name: 'Vitalis'
+}, {
+  name: 'Nortec'
+}, {
+  name: 'Grupo Araucaria'
+}, {
+  name: 'Cimar'
+}, {
+  name: 'JAPS',
+  src: '/assets/partners/japs-wordmark.svg'
+}];
 const INTEGRATIONS = ['E-commerce', 'CRM', 'API'];
 const MODULES = [{
   name: 'Captura integrada',
@@ -184,7 +197,7 @@ const DEMO_FIELDS = [{
   full: true,
   placeholder: 'Web, e-commerce, sucursal, call center…'
 }];
-const FOOTER_COLUMNS = [['Plataforma', [['Captura integrada', 'modulos'], ['Panel DPO', 'modulos'], ['Portal de titulares', 'modulos'], ['Evidencia y auditoría', 'plataforma']]], ['Industrias', [['Retail y e-commerce', null], ['Banca y seguros', null], ['Salud', null], ['Educación', null]]], ['Recursos', [['Guías y checklists', 'recursos'], ['Normativa', 'normativa'], ['Implementación', 'implementacion'], ['Documentación API', null]]], ['Empresa', [['Nosotros', null], ['Seguridad', null], ['Contacto', 'demo'], ['Estado del servicio', null]]]];
+const FOOTER_COLUMNS = [['Plataforma', [['Captura integrada', 'modulos'], ['Panel DPO', 'modulos'], ['Portal de titulares', 'modulos'], ['Evidencia y auditoría', 'plataforma']]], ['Industrias', [['Retail y e-commerce', null], ['Banca y seguros', null], ['Salud', null], ['Educación', null]]], ['Recursos', [['Guías y checklists', 'recursos'], ['Normativa', 'normativa'], ['Implementación', 'implementacion'], ['Verificación de formularios', 'verificacion']]], ['Empresa', [['Nosotros', null], ['Seguridad', null], ['Contacto', 'demo'], ['Estado del servicio', null]]]];
 function hrefFor(route) {
   return route === 'inicio' ? '/' : '/' + route + '/';
 }
@@ -688,6 +701,47 @@ function ModuleGrid({
     onClick: () => navigate('modulos')
   })));
 }
+function LogoMarqueeCell({
+  item,
+  decorative
+}) {
+  return React.createElement("span", {
+    className: "cns-logo-cell",
+    "aria-hidden": decorative ? 'true' : undefined
+  }, item.src ? React.createElement("img", {
+    src: item.src,
+    alt: item.name,
+    className: "cns-logo-cell__img"
+  }) : item.name);
+}
+function LogoMarquee({
+  eyebrow,
+  items
+}) {
+  return React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      padding: 'clamp(48px,7vw,80px) 0'
+    }
+  }, eyebrow && React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '0 0 40px',
+      color: 'var(--color-ink)'
+    }
+  }, eyebrow), React.createElement("div", {
+    className: "cns-logo-marquee"
+  }, React.createElement("div", {
+    className: "cns-logo-track"
+  }, items.map(item => React.createElement(LogoMarqueeCell, {
+    key: item.name,
+    item: item
+  })), items.map(item => React.createElement(LogoMarqueeCell, {
+    key: `dup-${item.name}`,
+    item: item,
+    decorative: true
+  })))));
+}
 function HomeScreen({
   navigate,
   daysLeft
@@ -778,9 +832,9 @@ function HomeScreen({
     ratio: "3 / 4",
     radius: "var(--radius-lg)",
     caption: "Equipos de legal, seguridad y marketing sobre un mismo registro."
-  })))), React.createElement(Shell, null, React.createElement(TrustLogoStrip, {
+  })))), React.createElement(Shell, null, React.createElement(LogoMarquee, {
     eyebrow: "Organizaciones que est\xE1n preparando su cumplimiento con Consenty (nombres de referencia)",
-    names: CLIENT_NAMES
+    items: CLIENT_NAMES
   })), React.createElement(Shell, {
     pad: `0 ${GUTTER} clamp(64px,9vw,120px)`
   }, React.createElement("h2", {
@@ -1873,6 +1927,431 @@ function DemoScreen() {
     onSubmit: () => setSent(true)
   }))))));
 }
+const FLUJO_STEPS = [['El titular escribe su correo', 'Paso 1'], ['Desafío de seguridad — invisible, sin clics', 'Paso 2'], ['Se envía el código de verificación', 'Paso 3']];
+function CopyDomainButton() {
+  const [copied, setCopied] = useState(false);
+  const copyDomain = () => {
+    try {
+      navigator.clipboard.writeText('challenges.cloudflare.com').catch(() => {});
+    } catch (e) {}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+  return React.createElement("button", {
+    onClick: copyDomain,
+    style: {
+      marginTop: 20,
+      height: 36,
+      padding: '0 14px',
+      background: 'none',
+      border: '1px solid var(--border-utility)',
+      borderRadius: 'var(--radius-button)',
+      fontFamily: 'var(--font-ui)',
+      fontSize: 14,
+      color: 'var(--color-indigo)',
+      cursor: 'pointer',
+      transition: 'var(--transition-color)'
+    }
+  }, copied ? 'Dominio copiado' : 'Copiar challenges.cloudflare.com');
+}
+function CausaRow({
+  numero,
+  tag,
+  tagTone = 'muted',
+  titulo,
+  cuerpo,
+  children
+}) {
+  return React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'clamp(16px,2vw,40px)',
+      padding: 'clamp(28px,4vw,40px) 0',
+      borderBottom: '1px solid var(--border-default)'
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'baseline',
+      gap: 16
+    }
+  }, React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, numero), React.createElement(MonoLabel, {
+    tone: tagTone
+  }, tag)), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 'clamp(24px,4vw,64px)'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 320px',
+      minWidth: 0
+    }
+  }, React.createElement("h3", {
+    className: "cns-card-heading",
+    style: {
+      margin: 0,
+      fontSize: 'clamp(22px,2.6vw,32px)',
+      textWrap: 'balance'
+    }
+  }, titulo), React.createElement("p", {
+    className: "cns-body",
+    style: {
+      margin: '12px 0 0',
+      maxWidth: '48ch',
+      color: 'var(--text-secondary)'
+    }
+  }, cuerpo)), children));
+}
+function ConnectivityCheck() {
+  const [check, setCheck] = useState('');
+  const tokenRef = useRef(0);
+  const runCheck = () => {
+    const token = ++tokenRef.current;
+    setCheck('Probando…');
+    const done = msg => {
+      if (tokenRef.current === token) setCheck(msg);
+    };
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?probe=' + Date.now();
+    script.onload = () => {
+      done('Tu navegador alcanza el servicio. Vuelve al formulario y reintenta.');
+      script.remove();
+    };
+    script.onerror = () => {
+      done('Algo está bloqueando la conexión — revisa la causa 01.');
+      script.remove();
+    };
+    document.head.appendChild(script);
+    setTimeout(() => {
+      setCheck(cur => cur === 'Probando…' ? 'Sin respuesta — revisa la causa 01.' : cur);
+    }, 6000);
+  };
+  return React.createElement("div", {
+    style: {
+      marginTop: 'clamp(32px,5vw,48px)',
+      background: 'var(--surface-card)',
+      border: '1px solid var(--border-utility)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(24px,3vw,36px)',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 'clamp(20px,3vw,40px)',
+      alignItems: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 320px',
+      minWidth: 0
+    }
+  }, React.createElement(MonoLabel, null, "Prueba r\xE1pida"), React.createElement("p", {
+    className: "cns-body",
+    style: {
+      margin: '12px 0 0',
+      maxWidth: '46ch',
+      color: 'var(--color-ink)'
+    }
+  }, "Comprueba si tu navegador alcanza el servicio del desaf\xEDo. No env\xEDa datos tuyos ni queda registrado en ning\xFAn consentimiento.")), React.createElement("div", {
+    style: {
+      flex: '0 0 auto',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16
+    }
+  }, React.createElement(Button, {
+    variant: "primary",
+    onClick: runCheck
+  }, "Probar conexi\xF3n"), React.createElement("span", {
+    role: "status",
+    style: {
+      fontSize: 14,
+      color: 'var(--text-secondary)'
+    }
+  }, check)));
+}
+function VerificacionScreen() {
+  return React.createElement("main", {
+    id: "contenido"
+  }, React.createElement(Shell, {
+    pad: `clamp(48px,7vw,100px) ${GUTTER} 0`
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 'clamp(40px,6vw,80px)',
+      alignItems: 'flex-start'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 420px',
+      minWidth: 0
+    }
+  }, React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, "Verificaci\xF3n de formularios"), React.createElement("h1", {
+    className: "cns-product-display",
+    style: {
+      margin: '20px 0 0',
+      maxWidth: '17ch',
+      fontSize: 'clamp(34px,6.4vw,72px)',
+      letterSpacing: '-0.03em',
+      textWrap: 'balance'
+    }
+  }, "Una persona real detr\xE1s de cada consentimiento"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '24px 0 0',
+      maxWidth: '60ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Antes de enviar un c\xF3digo de verificaci\xF3n, Consenty ejecuta un desaf\xEDo de seguridad de Cloudflare Turnstile. Es invisible: en el caso normal el titular no ve nada ni tiene que hacer nada."), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 16,
+      marginTop: 'clamp(28px,4vw,40px)'
+    }
+  }, React.createElement(Button, {
+    variant: "primary",
+    href: "#bloqueador"
+  }, "Llegu\xE9 desde un formulario"), React.createElement("a", {
+    href: "#empresa",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      height: 44,
+      fontSize: 15,
+      color: 'var(--text-link)'
+    }
+  }, "C\xF3mo protege tu registro"))), React.createElement("div", {
+    style: {
+      flex: '1 1 380px',
+      minWidth: 0,
+      background: 'var(--surface-card-stone)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(24px,3vw,36px)'
+    }
+  }, React.createElement(MonoLabel, null, "Flujo normal"), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 0,
+      marginTop: 20
+    }
+  }, FLUJO_STEPS.map(([desc, paso]) => React.createElement("div", {
+    key: paso,
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: 16,
+      padding: '16px 0',
+      borderBottom: '1px solid var(--border-default)'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 15,
+      color: 'var(--color-ink)'
+    }
+  }, desc), React.createElement(MonoLabel, null, paso)))), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 20,
+      fontSize: 14,
+      color: 'var(--color-success)'
+    }
+  }, React.createElement("span", null, "\u2713"), React.createElement("span", null, "Tiempo t\xEDpico: menos de un segundo"))))), React.createElement("div", {
+    style: {
+      marginTop: 'clamp(64px,9vw,120px)'
+    }
+  }, React.createElement(DarkFeatureBand, {
+    tone: "slate",
+    eyebrow: "Por qu\xE9 existe",
+    heading: "El registro solo prueba algo si la decisi\xF3n es atribuible",
+    body: "Sin este control, cualquiera podr\xEDa generar consentimientos masivos a nombre de terceros y contaminar el registro que tu empresa despu\xE9s tiene que exhibir. La verificaci\xF3n separa a las personas de los scripts antes de que se emita el c\xF3digo."
+  }, React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
+      gap: 'clamp(24px,3vw,40px)'
+    }
+  }, React.createElement(CapabilityCard, {
+    tone: "dark",
+    title: "Evidencia atribuible",
+    body: "Cada consentimiento del registro queda asociado a una persona que super\xF3 el control, no a un proceso automatizado."
+  }), React.createElement(CapabilityCard, {
+    tone: "dark",
+    title: "Sin abuso del env\xEDo",
+    body: "Impide que el formulario se use para bombardear con c\xF3digos correos de personas que nunca lo pidieron."
+  })))), React.createElement("div", {
+    id: "empresa"
+  }, React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER} 0`
+  }, React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, "Para la empresa"), React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: '16px 0 0',
+      maxWidth: '22ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em',
+      textWrap: 'balance'
+    }
+  }, "Un control que no le cuesta nada al titular"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '20px 0 clamp(32px,5vw,56px)',
+      maxWidth: '58ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Protege la validez probatoria del registro sin agregar un paso al formulario."), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))',
+      gap: 'clamp(24px,3vw,40px)'
+    }
+  }, React.createElement(CapabilityCard, {
+    title: "Validez probatoria",
+    body: "El registro que exhibes ante la Agencia queda libre de consentimientos generados en masa a nombre de terceros."
+  }), React.createElement(CapabilityCard, {
+    title: "Cero fricci\xF3n",
+    body: "Es invisible. El titular solo lo percibe cuando su propio navegador bloquea el desaf\xEDo."
+  }), React.createElement(CapabilityCard, {
+    title: "Degradaci\xF3n controlada",
+    body: "Si el desaf\xEDo falla, el widget explica qu\xE9 pas\xF3 y c\xF3mo seguir en lugar de quedarse colgado sin respuesta."
+  }), React.createElement(CapabilityCard, {
+    title: "Configurable por tenant",
+    body: "Cada empresa usa su propia cuenta de Cloudflare o la de Consenty, seg\xFAn c\xF3mo quiera administrar las claves."
+  })))), React.createElement("div", {
+    style: {
+      background: 'var(--surface-wash-mist)',
+      marginTop: 'clamp(64px,9vw,120px)',
+      borderTop: '1px solid var(--border-utility)'
+    }
+  }, React.createElement("div", {
+    id: "bloqueador"
+  }, React.createElement(Shell, {
+    pad: `clamp(56px,8vw,100px) ${GUTTER}`
+  }, React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, "Para el titular"), React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: '16px 0 0',
+      maxWidth: '20ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em',
+      textWrap: 'balance'
+    }
+  }, "\xBFLlegaste aqu\xED desde un formulario?"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '20px 0 0',
+      maxWidth: '58ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Significa que el control de seguridad no pudo completarse en tu navegador. Hay tres causas posibles, ordenadas de la m\xE1s com\xFAn a la menos frecuente."), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 0,
+      marginTop: 'clamp(32px,5vw,56px)',
+      borderTop: '1px solid var(--border-default)'
+    }
+  }, React.createElement(CausaRow, {
+    numero: "Causa 01 \xB7 la m\xE1s com\xFAn",
+    tag: "Puedes resolverlo t\xFA",
+    titulo: "Un bloqueador o una VPN est\xE1 filtrando el desaf\xEDo",
+    cuerpo: "Extensiones como bloqueadores de anuncios, antirrastreo o una VPN pueden cortar la conexi\xF3n con el servicio que ejecuta el control."
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 320px',
+      minWidth: 0,
+      background: 'var(--surface-card)',
+      border: '1px solid var(--border-utility)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(20px,2.4vw,28px)'
+    }
+  }, React.createElement(MonoLabel, null, "Qu\xE9 hacer"), React.createElement("ol", {
+    style: {
+      margin: '16px 0 0',
+      paddingLeft: 20,
+      display: 'grid',
+      gap: 12,
+      fontSize: 15,
+      lineHeight: 1.55,
+      color: 'var(--color-ink)'
+    }
+  }, React.createElement("li", null, "Abre la extensi\xF3n desde la barra del navegador y elige permitir este sitio."), React.createElement("li", null, "O agrega ", React.createElement("code", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      fontSize: 13.5,
+      background: 'var(--surface-card-stone)',
+      padding: '2px 6px',
+      borderRadius: 'var(--radius-sm)'
+    }
+  }, "challenges.cloudflare.com"), " a las excepciones."), React.createElement("li", null, "Vuelve al formulario y reintenta.")), React.createElement(CopyDomainButton, null))), React.createElement(CausaRow, {
+    numero: "Causa 02",
+    tag: "Puedes resolverlo t\xFA",
+    titulo: "El desaf\xEDo no respondi\xF3 a tiempo",
+    cuerpo: "Una conexi\xF3n intermitente o una pesta\xF1a en segundo plano pueden dejar el control a medio camino."
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 320px',
+      minWidth: 0,
+      background: 'var(--surface-card)',
+      border: '1px solid var(--border-utility)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(20px,2.4vw,28px)'
+    }
+  }, React.createElement(MonoLabel, null, "Qu\xE9 hacer"), React.createElement("ol", {
+    style: {
+      margin: '16px 0 0',
+      paddingLeft: 20,
+      display: 'grid',
+      gap: 12,
+      fontSize: 15,
+      lineHeight: 1.55,
+      color: 'var(--color-ink)'
+    }
+  }, React.createElement("li", null, "Vuelve al formulario y reintenta."), React.createElement("li", null, "Si vuelve a pasar, usa la verificaci\xF3n manual que ofrece el propio widget: aparece una casilla para marcar.")))), React.createElement(CausaRow, {
+    numero: "Causa 03",
+    tag: "No depende de ti",
+    tagTone: "warning",
+    titulo: "El sitio incrusta el formulario de forma restringida",
+    cuerpo: "El formulario est\xE1 dentro de un marco con permisos limitados y el control no puede ejecutarse ah\xED."
+  }, React.createElement("div", {
+    style: {
+      flex: '1 1 320px',
+      minWidth: 0,
+      background: 'var(--surface-card-stone)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(20px,2.4vw,28px)'
+    }
+  }, React.createElement(MonoLabel, null, "Qu\xE9 hacer"), React.createElement("p", {
+    className: "cns-body",
+    style: {
+      margin: '16px 0 0',
+      color: 'var(--color-ink)'
+    }
+  }, "Desde tu navegador no hay nada que puedas cambiar. Avisa a la empresa due\xF1a del formulario: tiene que ajustar c\xF3mo lo incrusta en su sitio.")))), React.createElement(ConnectivityCheck, null)))), React.createElement(DarkFeatureBand, {
+    tone: "indigo",
+    eyebrow: "Si nada funciona",
+    heading: "Tus derechos siguen vigentes",
+    body: "Contacta a la empresa due\xF1a del formulario y cu\xE9ntale qu\xE9 pas\xF3: puede completar tu solicitud por otra v\xEDa. Como titular, puedes ejercer tus derechos igualmente por los canales que esa empresa publique \u2014 el problema t\xE9cnico no los suspende."
+  }));
+}
 function App() {
   const [route, navigate] = useRoute();
   const width = useViewportWidth();
@@ -1899,7 +2378,8 @@ function App() {
       navigate: navigate,
       mobile: mobile
     }),
-    demo: React.createElement(DemoScreen, null)
+    demo: React.createElement(DemoScreen, null),
+    verificacion: React.createElement(VerificacionScreen, null)
   };
   return React.createElement("div", {
     style: {

@@ -8,12 +8,12 @@
  * Copy is Spanish (es-CL); comments and identifiers stay English, per the system readme.
  */
 
-const { useState, useEffect, useMemo, useCallback, Fragment } = React;
+const { useState, useEffect, useMemo, useCallback, useRef, Fragment } = React;
 
 const DS = window.Consenty || {};
 const {
   Wordmark, Button, Icon,
-  TrustLogoStrip, FooterNewsletter,
+  FooterNewsletter,
   BlogFilterChip, ResearchTable, ContactFormCard,
   AgentConsoleCard, CapabilityCard, DarkFeatureBand, HeroPhotoCard, ProductCard
 } = DS;
@@ -72,7 +72,7 @@ const NAV = [
   ['implementacion', 'Implementación']
 ];
 
-const ROUTES = NAV.map(([r]) => r).concat('demo');
+const ROUTES = NAV.map(([r]) => r).concat('demo', 'verificacion');
 
 /* Titles, descriptions and paths live in seo.json — build.mjs emits them as seo.js,
    which index.html loads before this file. One table feeds both the served HTML
@@ -80,7 +80,14 @@ const ROUTES = NAV.map(([r]) => r).concat('demo');
 const SEO = (window.CONSENTY_SEO && window.CONSENTY_SEO.pages) || {};
 const SITE = (window.CONSENTY_SEO && window.CONSENTY_SEO.site) || {};
 
-const CLIENT_NAMES = ['Andesbank', 'Vitalis', 'Nortec', 'Grupo Araucaria', 'Cimar'];
+const CLIENT_NAMES = [
+  { name: 'Andesbank' },
+  { name: 'Vitalis' },
+  { name: 'Nortec' },
+  { name: 'Grupo Araucaria' },
+  { name: 'Cimar' },
+  { name: 'JAPS', src: '/assets/partners/japs-wordmark.svg' }
+];
 const INTEGRATIONS = ['E-commerce', 'CRM', 'API'];
 
 const MODULES = [
@@ -184,7 +191,7 @@ const FOOTER_COLUMNS = [
     ['Guías y checklists', 'recursos'],
     ['Normativa', 'normativa'],
     ['Implementación', 'implementacion'],
-    ['Documentación API', null]
+    ['Verificación de formularios', 'verificacion']
   ]],
   ['Empresa', [
     ['Nosotros', null],
@@ -574,6 +581,41 @@ function ModuleGrid({ navigate }) {
   );
 }
 
+/** One mark inside the marquee: a real logo image when `src` is set, otherwise
+ *  the plain-text fallback TrustLogoStrip used (no artwork for the invented names). */
+function LogoMarqueeCell({ item, decorative }) {
+  return (
+    <span className="cns-logo-cell" aria-hidden={decorative ? 'true' : undefined}>
+      {item.src
+        ? <img src={item.src} alt={item.name} className="cns-logo-cell__img" />
+        : item.name}
+    </span>
+  );
+}
+
+/** Eyebrow + infinite horizontal marquee of names/logos — same mechanism as the
+ *  LogoWall on the japs.ing landing (japs/landing_v3): a duplicated flex
+ *  track animated -50%, so the loop's seam is invisible, paused on
+ *  hover/focus. */
+function LogoMarquee({ eyebrow, items }) {
+  return (
+    <div style={{ textAlign: 'center', padding: 'clamp(48px,7vw,80px) 0' }}>
+      {eyebrow && (
+        <p className="cns-body-large" style={{ margin: '0 0 40px', color: 'var(--color-ink)' }}>
+          {eyebrow}
+        </p>
+      )}
+      <div className="cns-logo-marquee">
+        <div className="cns-logo-track">
+          {items.map((item) => <LogoMarqueeCell key={item.name} item={item} />)}
+          {/* Second, aria-hidden copy closes the -50% loop seam; decorative, never a link. */}
+          {items.map((item) => <LogoMarqueeCell key={`dup-${item.name}`} item={item} decorative />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ *
  * Screen: Inicio
  * ------------------------------------------------------------------ */
@@ -631,9 +673,9 @@ function HomeScreen({ navigate, daysLeft }) {
       </Shell>
 
       <Shell>
-        <TrustLogoStrip
+        <LogoMarquee
           eyebrow="Organizaciones que están preparando su cumplimiento con Consenty (nombres de referencia)"
-          names={CLIENT_NAMES}
+          items={CLIENT_NAMES}
         />
       </Shell>
 
@@ -1439,6 +1481,335 @@ function DemoScreen() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Screen: Verificación de formularios
+ * ------------------------------------------------------------------ */
+
+const FLUJO_STEPS = [
+  ['El titular escribe su correo', 'Paso 1'],
+  ['Desafío de seguridad — invisible, sin clics', 'Paso 2'],
+  ['Se envía el código de verificación', 'Paso 3']
+];
+
+/** Bordered outline button — no DS Button variant matches this look, same pattern as AnswerPill. */
+function CopyDomainButton() {
+  const [copied, setCopied] = useState(false);
+
+  const copyDomain = () => {
+    /* writeText() returns a Promise — a bare try/catch doesn't see a permission
+       rejection, only a synchronous throw when the Clipboard API isn't there at all. */
+    try { navigator.clipboard.writeText('challenges.cloudflare.com').catch(() => {}); } catch (e) { /* unavailable */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  return (
+    <button
+      onClick={copyDomain}
+      style={{
+        marginTop: 20, height: 36, padding: '0 14px', background: 'none',
+        border: '1px solid var(--border-utility)', borderRadius: 'var(--radius-button)',
+        fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-indigo)', cursor: 'pointer',
+        transition: 'var(--transition-color)'
+      }}
+    >{copied ? 'Dominio copiado' : 'Copiar challenges.cloudflare.com'}</button>
+  );
+}
+
+/** One numbered cause: eyebrow tags, title/body on the left, "Qué hacer" content on the right. */
+function CausaRow({ numero, tag, tagTone = 'muted', titulo, cuerpo, children }) {
+  return (
+    <div style={{
+      display: 'grid', gap: 'clamp(16px,2vw,40px)',
+      padding: 'clamp(28px,4vw,40px) 0', borderBottom: '1px solid var(--border-default)'
+    }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 16 }}>
+        <MonoLabel tone="indigo">{numero}</MonoLabel>
+        <MonoLabel tone={tagTone}>{tag}</MonoLabel>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(24px,4vw,64px)' }}>
+        <div style={{ flex: '1 1 320px', minWidth: 0 }}>
+          <h3 className="cns-card-heading" style={{ margin: 0, fontSize: 'clamp(22px,2.6vw,32px)', textWrap: 'balance' }}>
+            {titulo}
+          </h3>
+          <p className="cns-body" style={{ margin: '12px 0 0', maxWidth: '48ch', color: 'var(--text-secondary)' }}>
+            {cuerpo}
+          </p>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* The canvas pings a made-up Cloudflare endpoint via new Image() — that URL serves JS, not an
+   image, so onerror always fires and the check would report "blocked" on every single visit,
+   bloqueador or not. Loading the real Turnstile script is what a blocker would actually catch,
+   and the run token guards against a stale timeout overwriting a result that already landed. */
+function ConnectivityCheck() {
+  const [check, setCheck] = useState('');
+  const tokenRef = useRef(0);
+
+  const runCheck = () => {
+    const token = ++tokenRef.current;
+    setCheck('Probando…');
+    const done = (msg) => { if (tokenRef.current === token) setCheck(msg); };
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?probe=' + Date.now();
+    script.onload = () => { done('Tu navegador alcanza el servicio. Vuelve al formulario y reintenta.'); script.remove(); };
+    script.onerror = () => { done('Algo está bloqueando la conexión — revisa la causa 01.'); script.remove(); };
+    document.head.appendChild(script);
+    setTimeout(() => {
+      setCheck((cur) => (cur === 'Probando…' ? 'Sin respuesta — revisa la causa 01.' : cur));
+    }, 6000);
+  };
+
+  return (
+    <div style={{
+      marginTop: 'clamp(32px,5vw,48px)', background: 'var(--surface-card)',
+      border: '1px solid var(--border-utility)', borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(24px,3vw,36px)', display: 'flex', flexWrap: 'wrap',
+      gap: 'clamp(20px,3vw,40px)', alignItems: 'center'
+    }}>
+      <div style={{ flex: '1 1 320px', minWidth: 0 }}>
+        <MonoLabel>Prueba rápida</MonoLabel>
+        <p className="cns-body" style={{ margin: '12px 0 0', maxWidth: '46ch', color: 'var(--color-ink)' }}>
+          Comprueba si tu navegador alcanza el servicio del desafío. No envía datos tuyos ni
+          queda registrado en ningún consentimiento.
+        </p>
+      </div>
+      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <Button variant="primary" onClick={runCheck}>Probar conexión</Button>
+        <span role="status" style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{check}</span>
+      </div>
+    </div>
+  );
+}
+
+function VerificacionScreen() {
+  return (
+    <main id="contenido">
+      <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(40px,6vw,80px)', alignItems: 'flex-start' }}>
+          <div style={{ flex: '1 1 420px', minWidth: 0 }}>
+            <MonoLabel tone="indigo">Verificación de formularios</MonoLabel>
+            <h1 className="cns-product-display" style={{
+              margin: '20px 0 0', maxWidth: '17ch', fontSize: 'clamp(34px,6.4vw,72px)',
+              letterSpacing: '-0.03em', textWrap: 'balance'
+            }}>
+              Una persona real detrás de cada consentimiento
+            </h1>
+            <p className="cns-body-large" style={{
+              margin: '24px 0 0', maxWidth: '60ch', color: 'var(--text-secondary)',
+              fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+            }}>
+              Antes de enviar un código de verificación, Consenty ejecuta un desafío de seguridad
+              de Cloudflare Turnstile. Es invisible: en el caso normal el titular no ve nada ni
+              tiene que hacer nada.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 'clamp(28px,4vw,40px)' }}>
+              <Button variant="primary" href="#bloqueador">Llegué desde un formulario</Button>
+              <a href="#empresa" style={{
+                display: 'inline-flex', alignItems: 'center', height: 44,
+                fontSize: 15, color: 'var(--text-link)'
+              }}>
+                Cómo protege tu registro
+              </a>
+            </div>
+          </div>
+          <div style={{
+            flex: '1 1 380px', minWidth: 0, background: 'var(--surface-card-stone)',
+            borderRadius: 'var(--radius-lg)', padding: 'clamp(24px,3vw,36px)'
+          }}>
+            <MonoLabel>Flujo normal</MonoLabel>
+            <div style={{ display: 'grid', gap: 0, marginTop: 20 }}>
+              {FLUJO_STEPS.map(([desc, paso]) => (
+                <div key={paso} style={{
+                  display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+                  gap: 16, padding: '16px 0', borderBottom: '1px solid var(--border-default)'
+                }}>
+                  <span style={{ fontSize: 15, color: 'var(--color-ink)' }}>{desc}</span>
+                  <MonoLabel>{paso}</MonoLabel>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, marginTop: 20,
+              fontSize: 14, color: 'var(--color-success)'
+            }}>
+              <span>✓</span><span>Tiempo típico: menos de un segundo</span>
+            </div>
+          </div>
+        </div>
+      </Shell>
+
+      <div style={{ marginTop: 'clamp(64px,9vw,120px)' }}>
+        <DarkFeatureBand
+          tone="slate"
+          eyebrow="Por qué existe"
+          heading="El registro solo prueba algo si la decisión es atribuible"
+          body="Sin este control, cualquiera podría generar consentimientos masivos a nombre de terceros y contaminar el registro que tu empresa después tiene que exhibir. La verificación separa a las personas de los scripts antes de que se emita el código."
+        >
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
+            gap: 'clamp(24px,3vw,40px)'
+          }}>
+            <CapabilityCard
+              tone="dark" title="Evidencia atribuible"
+              body="Cada consentimiento del registro queda asociado a una persona que superó el control, no a un proceso automatizado."
+            />
+            <CapabilityCard
+              tone="dark" title="Sin abuso del envío"
+              body="Impide que el formulario se use para bombardear con códigos correos de personas que nunca lo pidieron."
+            />
+          </div>
+        </DarkFeatureBand>
+      </div>
+
+      <div id="empresa">
+        <Shell pad={`clamp(64px,9vw,120px) ${GUTTER} 0`}>
+          <MonoLabel tone="indigo">Para la empresa</MonoLabel>
+          <h2 className="cns-section-heading" style={{
+            margin: '16px 0 0', maxWidth: '22ch', fontSize: 'clamp(30px,4.4vw,48px)',
+            letterSpacing: '-0.025em', textWrap: 'balance'
+          }}>
+            Un control que no le cuesta nada al titular
+          </h2>
+          <p className="cns-body-large" style={{
+            margin: '20px 0 clamp(32px,5vw,56px)', maxWidth: '58ch', color: 'var(--text-secondary)',
+            fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+          }}>
+            Protege la validez probatoria del registro sin agregar un paso al formulario.
+          </p>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))',
+            gap: 'clamp(24px,3vw,40px)'
+          }}>
+            <CapabilityCard
+              title="Validez probatoria"
+              body="El registro que exhibes ante la Agencia queda libre de consentimientos generados en masa a nombre de terceros."
+            />
+            <CapabilityCard
+              title="Cero fricción"
+              body="Es invisible. El titular solo lo percibe cuando su propio navegador bloquea el desafío."
+            />
+            <CapabilityCard
+              title="Degradación controlada"
+              body="Si el desafío falla, el widget explica qué pasó y cómo seguir en lugar de quedarse colgado sin respuesta."
+            />
+            <CapabilityCard
+              title="Configurable por tenant"
+              body="Cada empresa usa su propia cuenta de Cloudflare o la de Consenty, según cómo quiera administrar las claves."
+            />
+          </div>
+        </Shell>
+      </div>
+
+      <div style={{
+        background: 'var(--surface-wash-mist)', marginTop: 'clamp(64px,9vw,120px)',
+        borderTop: '1px solid var(--border-utility)'
+      }}>
+        <div id="bloqueador">
+          <Shell pad={`clamp(56px,8vw,100px) ${GUTTER}`}>
+            <MonoLabel tone="indigo">Para el titular</MonoLabel>
+            <h2 className="cns-section-heading" style={{
+              margin: '16px 0 0', maxWidth: '20ch', fontSize: 'clamp(30px,4.4vw,48px)',
+              letterSpacing: '-0.025em', textWrap: 'balance'
+            }}>
+              ¿Llegaste aquí desde un formulario?
+            </h2>
+            <p className="cns-body-large" style={{
+              margin: '20px 0 0', maxWidth: '58ch', color: 'var(--text-secondary)',
+              fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+            }}>
+              Significa que el control de seguridad no pudo completarse en tu navegador. Hay
+              tres causas posibles, ordenadas de la más común a la menos frecuente.
+            </p>
+
+            <div style={{
+              display: 'grid', gap: 0, marginTop: 'clamp(32px,5vw,56px)',
+              borderTop: '1px solid var(--border-default)'
+            }}>
+              <CausaRow
+                numero="Causa 01 · la más común" tag="Puedes resolverlo tú"
+                titulo="Un bloqueador o una VPN está filtrando el desafío"
+                cuerpo="Extensiones como bloqueadores de anuncios, antirrastreo o una VPN pueden cortar la conexión con el servicio que ejecuta el control."
+              >
+                <div style={{
+                  flex: '1 1 320px', minWidth: 0, background: 'var(--surface-card)',
+                  border: '1px solid var(--border-utility)', borderRadius: 'var(--radius-lg)',
+                  padding: 'clamp(20px,2.4vw,28px)'
+                }}>
+                  <MonoLabel>Qué hacer</MonoLabel>
+                  <ol style={{
+                    margin: '16px 0 0', paddingLeft: 20, display: 'grid', gap: 12,
+                    fontSize: 15, lineHeight: 1.55, color: 'var(--color-ink)'
+                  }}>
+                    <li>Abre la extensión desde la barra del navegador y elige permitir este sitio.</li>
+                    <li>O agrega <code style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 13.5, background: 'var(--surface-card-stone)',
+                      padding: '2px 6px', borderRadius: 'var(--radius-sm)'
+                    }}>challenges.cloudflare.com</code> a las excepciones.</li>
+                    <li>Vuelve al formulario y reintenta.</li>
+                  </ol>
+                  <CopyDomainButton />
+                </div>
+              </CausaRow>
+
+              <CausaRow
+                numero="Causa 02" tag="Puedes resolverlo tú"
+                titulo="El desafío no respondió a tiempo"
+                cuerpo="Una conexión intermitente o una pestaña en segundo plano pueden dejar el control a medio camino."
+              >
+                <div style={{
+                  flex: '1 1 320px', minWidth: 0, background: 'var(--surface-card)',
+                  border: '1px solid var(--border-utility)', borderRadius: 'var(--radius-lg)',
+                  padding: 'clamp(20px,2.4vw,28px)'
+                }}>
+                  <MonoLabel>Qué hacer</MonoLabel>
+                  <ol style={{
+                    margin: '16px 0 0', paddingLeft: 20, display: 'grid', gap: 12,
+                    fontSize: 15, lineHeight: 1.55, color: 'var(--color-ink)'
+                  }}>
+                    <li>Vuelve al formulario y reintenta.</li>
+                    <li>Si vuelve a pasar, usa la verificación manual que ofrece el propio widget: aparece una casilla para marcar.</li>
+                  </ol>
+                </div>
+              </CausaRow>
+
+              <CausaRow
+                numero="Causa 03" tag="No depende de ti" tagTone="warning"
+                titulo="El sitio incrusta el formulario de forma restringida"
+                cuerpo="El formulario está dentro de un marco con permisos limitados y el control no puede ejecutarse ahí."
+              >
+                <div style={{
+                  flex: '1 1 320px', minWidth: 0, background: 'var(--surface-card-stone)',
+                  borderRadius: 'var(--radius-lg)', padding: 'clamp(20px,2.4vw,28px)'
+                }}>
+                  <MonoLabel>Qué hacer</MonoLabel>
+                  <p className="cns-body" style={{ margin: '16px 0 0', color: 'var(--color-ink)' }}>
+                    Desde tu navegador no hay nada que puedas cambiar. Avisa a la empresa dueña
+                    del formulario: tiene que ajustar cómo lo incrusta en su sitio.
+                  </p>
+                </div>
+              </CausaRow>
+            </div>
+
+            <ConnectivityCheck />
+          </Shell>
+        </div>
+      </div>
+
+      <DarkFeatureBand
+        tone="indigo"
+        eyebrow="Si nada funciona"
+        heading="Tus derechos siguen vigentes"
+        body="Contacta a la empresa dueña del formulario y cuéntale qué pasó: puede completar tu solicitud por otra vía. Como titular, puedes ejercer tus derechos igualmente por los canales que esa empresa publique — el problema técnico no los suspende."
+      />
+    </main>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  * App
  * ------------------------------------------------------------------ */
 
@@ -1460,7 +1831,8 @@ function App() {
     normativa: <NormativaScreen daysLeft={daysLeft} />,
     recursos: <RecursosScreen />,
     implementacion: <ImplementacionScreen navigate={navigate} mobile={mobile} />,
-    demo: <DemoScreen />
+    demo: <DemoScreen />,
+    verificacion: <VerificacionScreen />
   };
 
   return (

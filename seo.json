@@ -50,6 +50,12 @@
       "nav": "Agendar demo",
       "title": "Agendar demo — Consenty",
       "description": "Agenda una demo de Consenty y revisa con nuestro equipo tus puntos de captura, tus brechas frente a la Ley 21.719 y el plan de implementación en cuatro semanas."
+    },
+    "verificacion": {
+      "path": "/verificacion/",
+      "nav": "Verificación de formularios",
+      "title": "Verificación de formularios — Consenty",
+      "description": "Cómo protege Consenty el registro de consentimientos con un desafío de seguridad invisible antes de enviar el código, y qué hacer si tu formulario quedó bloqueado."
     }
   }
 }

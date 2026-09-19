@@ -5,10 +5,12 @@
   "description": "Sitio estático de Consenty | consenty.japs.ing",
   "type": "module",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "dev": "npm run build && node dev-server.mjs"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
-    "@babel/preset-react": "^7.26.3"
+    "@babel/preset-react": "^7.26.3",
+    "chokidar": "^4.0.1"
   }
 }

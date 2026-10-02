@@ -297,6 +297,7 @@ function useViewportWidth() {
 }
 
 const preventDefault = (e) => e.preventDefault();
+const LOGIN_URL = 'https://app.consenty.japs.ing/login';
 
 /* ------------------------------------------------------------------ *
  * Chrome — announcement bar, nav, footer
@@ -421,7 +422,7 @@ function SiteHeader({ route, navigate, mobile }) {
                 ))}
               </nav>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, whiteSpace: 'nowrap', flex: '0 0 auto' }}>
-                <a href="#ingresar" data-plain onClick={preventDefault} style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+                <a href={LOGIN_URL} data-plain style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
                   Ingresar
                 </a>
                 <Button variant="primary" size="sm" onClick={() => navigate('demo')}>Agendar demo</Button>
@@ -457,7 +458,7 @@ function SiteHeader({ route, navigate, mobile }) {
                 style={{ fontSize: 17, color: 'var(--color-ink)', padding: '16px 0', borderBottom: '1px solid var(--border-subtle)' }}
               >{label}</a>
             ))}
-            <a href="#ingresar" data-plain onClick={preventDefault}
+            <a href={LOGIN_URL} data-plain
               style={{ fontSize: 17, color: 'var(--text-secondary)', padding: '16px 0', borderBottom: '1px solid var(--border-subtle)' }}>
               Ingresar
             </a>

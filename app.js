@@ -269,6 +269,7 @@ function useViewportWidth() {
   return w;
 }
 const preventDefault = e => e.preventDefault();
+const LOGIN_URL = 'https://app.consenty.japs.ing/login';
 const BAR_KEY = 'consenty:deadline-bar-dismissed';
 const pad2 = n => String(n).padStart(2, '0');
 function useCountdown(target) {
@@ -454,9 +455,8 @@ function SiteHeader({
       flex: '0 0 auto'
     }
   }, React.createElement("a", {
-    href: "#ingresar",
+    href: LOGIN_URL,
     "data-plain": true,
-    onClick: preventDefault,
     style: {
       fontSize: 14,
       color: 'var(--text-secondary)'
@@ -516,9 +516,8 @@ function SiteHeader({
       borderBottom: '1px solid var(--border-subtle)'
     }
   }), label)), React.createElement("a", {
-    href: "#ingresar",
+    href: LOGIN_URL,
     "data-plain": true,
-    onClick: preventDefault,
     style: {
       fontSize: 17,
       color: 'var(--text-secondary)',

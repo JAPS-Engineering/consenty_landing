@@ -16,11 +16,9 @@ const {
   FooterNewsletter,
   BlogFilterChip,
   ResearchTable,
-  ContactFormCard,
-  AgentConsoleCard,
+  Input,
   CapabilityCard,
   DarkFeatureBand,
-  HeroPhotoCard,
   ProductCard
 } = DS;
 const GUTTER = 'clamp(20px,4vw,40px)';
@@ -83,6 +81,9 @@ function CheckRow({
   }, "\u2713"), React.createElement("span", null, children));
 }
 const DEADLINE = new Date('2026-12-01T00:00:00');
+const BOOKING = {
+  hash: 'agendar'
+};
 const NAV = [['inicio', 'Inicio'], ['plataforma', 'Plataforma'], ['modulos', 'Módulos'], ['normativa', 'Normativa'], ['recursos', 'Recursos'], ['implementacion', 'Implementación']];
 const ROUTES = NAV.map(([r]) => r).concat('demo', 'verificacion');
 const SEO = window.CONSENTY_SEO && window.CONSENTY_SEO.pages || {};
@@ -96,27 +97,33 @@ const CLIENT_NAMES = [{
 }, {
   name: 'Grupo Araucaria'
 }, {
+  name: 'Lumisreg',
+  height: 64,
+  src: 'https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tiJzwppdKX__4lX88B3wJ2ohWrdrCRBeN2orTuo5OWH1V3IC4kR44ij_UWjuRTrnpYj6yfVZiwsP2TFMyaHv5ENasCNofPSQFq61QSoAaEXXy1BaLMMKXFfo4hLbuwonhzVrKsJhSz8Y9NPZm9sZ30K81u97o2lo4fx1nnjmKa6pVY9QcWALtcM5gGqXk=w16383'
+}, {
   name: 'Cimar'
 }, {
   name: 'JAPS',
   src: '/assets/partners/japs-wordmark.svg'
 }];
-const INTEGRATIONS = ['E-commerce', 'CRM', 'API'];
 const MODULES = [{
   name: 'Captura integrada',
   description: 'Conectores y APIs livianas en cada punto donde tu empresa interactúa con las personas.',
   bullets: ['Widget web y centro de preferencias', 'Conectores CRM, e-commerce y offline', 'Sello de tiempo, versión y hash'],
-  ctaLabel: 'Ver captura'
+  ctaLabel: 'Ver captura',
+  anchor: 'captura'
 }, {
   name: 'Panel DPO',
   description: 'Centro de mando para supervisar consentimientos, alertas y solicitudes de titulares.',
   bullets: ['Supervisión de todos los consentimientos', 'Alertas de cambios y plazos', 'Expedientes exportables'],
-  ctaLabel: 'Ver panel'
+  ctaLabel: 'Ver panel',
+  anchor: 'panel'
 }, {
   name: 'Portal de titulares',
   description: 'Autoservicio para ejercer los seis derechos BARCOP sin trámites intermedios.',
   bullets: ['Acceso con RUT y correo', 'Los seis derechos BARCOP', 'Respuestas con trazabilidad'],
-  ctaLabel: 'Ver portal'
+  ctaLabel: 'Ver portal',
+  anchor: 'portal'
 }];
 const NORMATIVA_ROWS = [{
   title: 'Ley 21.719 — nuevo marco de protección de datos personales',
@@ -169,37 +176,46 @@ const RECURSOS = [{
   date: 'May 2026'
 }];
 const RECURSO_FILTERS = ['Todo', 'Normativa', 'Consentimiento', 'Derechos BARCOP', 'Implementación'];
-const BARCOP = [['B', 'Bloqueo', 'Suspender temporalmente el uso de sus datos.'], ['A', 'Acceso', 'Consultar y conocer los datos almacenados.'], ['R', 'Rectificación', 'Corregir información inexacta o incompleta.'], ['C', 'Cancelación', 'Eliminar datos o revocar autorizaciones.'], ['O', 'Oposición', 'Oponerse al tratamiento para fines específicos.'], ['P', 'Portabilidad', 'Solicitar y transferir sus datos estructurados.']];
 const PILARES = [['01', 'Cumplimiento legal out-of-the-box', 'El motor gestiona todo el ecosistema de derechos ARCOP+ —acceso, rectificación, cancelación, oposición, portabilidad y bloqueo— de forma automatizada. Se encarga de la parte compleja que la ley exige, para que tu empresa cumpla sin volverse experta legal.'], ['02', 'Gestión dinámica de datos', 'En lugar de guardar archivos estáticos, el sistema usa registros estructurados en JSON/XML. Eso permite generar comprobantes on-demand al instante, con la certeza de que el documento refleja siempre la realidad del consentimiento en la base de datos.'], ['03', 'Accesible para toda empresa', 'Pensado para el universo de empresas que no tienen grandes departamentos de TI. Con widgets simples y APIs livianas, cualquier negocio integra una capa de cumplimiento rápidamente.']];
-const ALTA_STEPS = [['01', 'RUT y correo', 'El titular ingresa los datos mínimos para iniciar.'], ['02', 'Activación', 'Se habilita automáticamente su cuenta de acceso al portal.'], ['03', 'Trazabilidad', 'Tu empresa obtiene registro y evidencia auditables desde el primer día.']];
 const RIESGOS = [['Infracción gravísima', '20.000 UTM', 'Hasta ~$1.400 millones CLP por infracción, más daño reputacional directo.'], ['Reincidencia', '4% de los ingresos', 'Hasta 4% de los ingresos anuales por ventas, o multa triplicada.'], ['Medida accesoria', '30 días de suspensión', 'Suspensión de las operaciones de tratamiento de datos.'], ['Registro público', 'Registro de sancionados', 'Inscripción en el Registro Nacional de Sanciones de la APDP, afectando la confianza comercial.']];
 const SEMANAS = [['Semana 1', 'Diagnóstico', 'Mapeo de los puntos de captura de datos existentes y de las bases de licitud vigentes.', 'Entregable: inventario de puntos de captura y brechas priorizadas.'], ['Semana 2', 'Configuración', 'Setup de Consenty, finalidades, versiones de términos y reglas de consentimiento.', 'Entregable: ambiente configurado y textos de consentimiento aprobados por legal.'], ['Semana 3', 'Integración', 'Conexión vía API y webhooks en los sistemas del cliente: web, e-commerce, CRM.', 'Entregable: capturas en producción con sello de tiempo y hash de evidencia.'], ['Semana 4', 'Despliegue', 'Portal BARCOP activo para titulares y capacitación al DPO o equipo legal.', 'Entregable: portal público, panel DPO operativo y primer expediente exportado.']];
 const DEMO_FIELDS = [{
-  name: 'nombre',
+  name: 'contact_name',
   label: 'Nombre',
-  required: true
+  required: true,
+  max: 255,
+  autoComplete: 'name'
 }, {
-  name: 'empresa',
+  name: 'company_name',
   label: 'Empresa',
-  required: true
+  required: true,
+  max: 255,
+  autoComplete: 'organization'
 }, {
-  name: 'email',
+  name: 'contact_email',
   label: 'Correo corporativo',
   type: 'email',
-  required: true
+  required: true,
+  max: 254,
+  autoComplete: 'email'
 }, {
-  name: 'cargo',
-  label: 'Cargo'
+  name: 'job_title',
+  label: 'Cargo',
+  max: 120,
+  autoComplete: 'organization-title'
 }, {
-  name: 'canales',
+  name: 'capture_channels',
   label: '¿Dónde capturas datos hoy?',
   as: 'textarea',
   full: true,
+  max: 1000,
   placeholder: 'Web, e-commerce, sucursal, call center…'
 }];
-const FOOTER_COLUMNS = [['Plataforma', [['Captura integrada', 'modulos'], ['Panel DPO', 'modulos'], ['Portal de titulares', 'modulos'], ['Evidencia y auditoría', 'plataforma']]], ['Industrias', [['Retail y e-commerce', null], ['Banca y seguros', null], ['Salud', null], ['Educación', null]]], ['Recursos', [['Guías y checklists', 'recursos'], ['Normativa', 'normativa'], ['Implementación', 'implementacion'], ['Verificación de formularios', 'verificacion']]], ['Empresa', [['Nosotros', null], ['Seguridad', null], ['Contacto', 'demo'], ['Estado del servicio', null]]]];
-function hrefFor(route) {
-  return route === 'inicio' ? '/' : '/' + route + '/';
+const FOOTER_COLUMNS = [['Plataforma', [['Captura integrada', 'modulos'], ['Panel DPO', 'modulos'], ['Portal de titulares', 'modulos'], ['Evidencia y auditoría', 'plataforma']]], ['Industrias', [['Retail y e-commerce', null], ['Banca y seguros', null], ['Salud', null], ['Educación', null]]], ['Recursos', [['Guías y checklists', 'recursos'], ['Normativa', 'normativa'], ['Implementación', 'implementacion'], ['Verificación de formularios', 'verificacion']]], ['Empresa', [['Nosotros', null], ['Seguridad', null], ['Contacto', 'demo', BOOKING], ['Estado del servicio', null]]]];
+function hrefFor(route, target) {
+  const base = route === 'inicio' ? '/' : '/' + route + '/';
+  if (!target) return base;
+  return base + (target.search ? '?' + target.search : '') + (target.hash ? '#' + target.hash : '');
 }
 function readRoute() {
   const slug = (window.location.pathname || '/').replace(/^\/+|\/+$/g, '');
@@ -228,36 +244,82 @@ function syncHead(route) {
   set('meta[name="twitter:title"]', 'content', page.title);
   set('meta[name="twitter:description"]', 'content', page.description);
 }
+function readLocation() {
+  return {
+    route: readRoute(),
+    search: window.location.search.replace(/^\?/, ''),
+    hash: window.location.hash.replace(/^#/, '')
+  };
+}
 function useRoute() {
-  const [route, setRoute] = useState(readRoute);
+  const [place, setPlace] = useState(() => ({
+    ...readLocation(),
+    visit: 0
+  }));
   useEffect(() => {
-    const onPop = () => setRoute(readRoute());
+    const onPop = () => setPlace(p => ({
+      ...readLocation(),
+      visit: p.visit + 1
+    }));
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
   useEffect(() => {
-    syncHead(route);
-    window.scrollTo(0, 0);
-  }, [route]);
-  const navigate = useCallback(next => {
-    if (readRoute() === next) {
-      window.scrollTo(0, 0);
-      return;
-    }
-    window.history.pushState(null, '', hrefFor(next));
-    setRoute(next);
+    syncHead(place.route);
+  }, [place.route]);
+  useEffect(() => {
+    const anchor = place.hash && document.getElementById(place.hash);
+    if (anchor) anchor.scrollIntoView();else window.scrollTo(0, 0);
+  }, [place.route, place.hash, place.visit]);
+  const navigate = useCallback((next, target) => {
+    const href = hrefFor(next, target);
+    const current = window.location.pathname + window.location.search + window.location.hash;
+    if (href !== current) window.history.pushState(null, '', href);
+    setPlace(p => ({
+      ...readLocation(),
+      visit: p.visit + 1
+    }));
   }, []);
-  return [route, navigate];
+  return [place, navigate];
 }
-function navLinkProps(route, navigate) {
+function isPlainClick(e) {
+  return !(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+}
+function navLinkProps(route, navigate, target) {
   return {
-    href: hrefFor(route),
+    href: hrefFor(route, target),
     onClick: e => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!isPlainClick(e)) return;
       e.preventDefault();
-      navigate(route);
+      navigate(route, target);
     }
   };
+}
+function routeLinkHandler(navigate) {
+  return e => {
+    if (!isPlainClick(e)) return;
+    const anchor = e.target.closest && e.target.closest('a[href]');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+    const url = new URL(anchor.href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+    const slug = url.pathname.replace(/^\/+|\/+$/g, '');
+    const route = slug === '' ? 'inicio' : slug;
+    if (ROUTES.indexOf(route) === -1 || url.pathname !== hrefFor(route)) return;
+    e.preventDefault();
+    navigate(route, {
+      search: url.search.replace(/^\?/, ''),
+      hash: url.hash.replace(/^#/, '')
+    });
+  };
+}
+function useViewportHeight() {
+  const [h, setH] = useState(() => window.innerHeight);
+  useEffect(() => {
+    const onResize = () => setH(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return h;
 }
 function useViewportWidth() {
   const [w, setW] = useState(() => window.innerWidth);
@@ -270,6 +332,7 @@ function useViewportWidth() {
 }
 const preventDefault = e => e.preventDefault();
 const LOGIN_URL = 'https://app.consenty.japs.ing/login';
+const API_ORIGIN = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://app.consenty.japs.ing';
 const BAR_KEY = 'consenty:deadline-bar-dismissed';
 const pad2 = n => String(n).padStart(2, '0');
 function useCountdown(target) {
@@ -356,16 +419,14 @@ function DeadlineBar({
       letterSpacing: '.01em',
       fontVariantNumeric: 'tabular-nums'
     }
-  }, React.createElement("span", null, days, "d"), React.createElement("span", null, pad2(hours), ":", pad2(minutes), ":", pad2(seconds))), React.createElement("a", {
-    href: "#/normativa",
-    onClick: () => onNavigate('normativa'),
+  }, React.createElement("span", null, days, "d"), React.createElement("span", null, pad2(hours), ":", pad2(minutes), ":", pad2(seconds))), React.createElement("a", _extends({}, navLinkProps('normativa', onNavigate), {
     style: {
       fontSize: 13.5,
       color: 'var(--color-ink)',
       textUnderlineOffset: 3,
       whiteSpace: 'nowrap'
     }
-  }, "Ver checklist"), React.createElement("button", {
+  }), "Ver checklist"), React.createElement("button", {
     onClick: dismiss,
     "aria-label": "Cerrar el aviso de vigencia",
     style: {
@@ -464,7 +525,7 @@ function SiteHeader({
   }, "Ingresar"), React.createElement(Button, {
     variant: "primary",
     size: "sm",
-    onClick: () => navigate('demo')
+    onClick: () => navigate('demo', BOOKING)
   }, "Agendar demo"))), mobile && React.createElement("button", {
     onClick: () => setMenuOpen(v => !v),
     "aria-label": "Men\xFA",
@@ -530,7 +591,7 @@ function SiteHeader({
     }
   }, React.createElement(Button, {
     variant: "primary",
-    onClick: () => navigate('demo')
+    onClick: () => navigate('demo', BOOKING)
   }, "Agendar demo")))));
 }
 function SiteFooter({
@@ -576,10 +637,10 @@ function SiteFooter({
     style: {
       fontSize: 14
     }
-  }, heading), links.map(([label, target]) => React.createElement("a", _extends({
+  }, heading), links.map(([label, target, place]) => React.createElement("a", _extends({
     key: label,
     "data-plain": true
-  }, target ? navLinkProps(target, navigate) : {
+  }, target ? navLinkProps(target, navigate, place) : {
     href: '#',
     onClick: preventDefault
   }, {
@@ -659,32 +720,635 @@ function SiteFooter({
     }
   }, "T\xE9rminos")))));
 }
+const APP_DEMO = '/app-demo/';
+const DEMO_SOURCE = 'consenty-demo';
+const APP_HOST = 'app.consenty.japs.ing';
+const SHOP_HOST = 'tiendaalba.example';
+const POSTERS = ['empresa-panel-full', 'empresa-ledger-verificado-full', 'empresa-ledger-verificado-content', 'empresa-datos-content', 'empresa-solicitud-detalle-content', 'empresa-ficha-content', 'empresa-integracion-instalacion-content'];
+let frameCounter = 0;
+function useFrameId(preferred) {
+  const ref = useRef(null);
+  if (ref.current === null) {
+    frameCounter += 1;
+    ref.current = preferred || 'marco-' + frameCounter;
+  }
+  return ref.current;
+}
+function demoUrl(scene, frame, options) {
+  const query = new URLSearchParams({
+    scene,
+    frame
+  });
+  for (const key of ['chrome', 'latency', 'turnstile', 'requires', 'still']) {
+    if (options[key]) query.set(key, options[key]);
+  }
+  if (options.reset) query.set('reset', '1');
+  return APP_DEMO + '?' + query.toString();
+}
+function useElementWidth() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return undefined;
+    const measure = () => setWidth(node.getBoundingClientRect().width);
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
+}
+function useNearViewport(margin) {
+  const ref = useRef(null);
+  const [near, setNear] = useState(typeof IntersectionObserver === 'undefined');
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(entries => setNear(entries[entries.length - 1].isIntersecting), {
+      rootMargin: margin
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [margin]);
+  return [ref, near];
+}
+function AppFrame({
+  scene,
+  label,
+  address,
+  interactive = false,
+  fluid = false,
+  eager = false,
+  chrome = 'full',
+  turnstile,
+  reset = false,
+  requires,
+  width = 1280,
+  height = 800,
+  naturalHeight = 620,
+  fitHeight,
+  autoHeight = false,
+  frameId,
+  onMessage,
+  apiRef,
+  tone = 'light',
+  style
+}) {
+  const id = useFrameId(frameId);
+  const [sizeRef, cardWidth] = useElementWidth();
+  const [nearRef, near] = useNearViewport(interactive ? '600px' : '350px');
+  const iframeRef = useRef(null);
+  const [ready, setReady] = useState(false);
+  const [everNear, setEverNear] = useState(eager);
+  const [contentHeight, setContentHeight] = useState(0);
+  useEffect(() => {
+    if (near) setEverNear(true);
+  }, [near]);
+  const mounted = interactive ? everNear : eager ? everNear : near;
+  useEffect(() => {
+    if (!mounted) setReady(false);
+  }, [mounted]);
+  const handlerRef = useRef(onMessage);
+  handlerRef.current = onMessage;
+  useEffect(() => {
+    const onWindowMessage = event => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== DEMO_SOURCE || data.frame !== id) return;
+      if (data.type === 'ready') setReady(true);
+      if (data.type === 'resize' && autoHeight && data.payload && data.payload.height > 0) {
+        setContentHeight(Math.min(data.payload.height, 900));
+      }
+      if (handlerRef.current) handlerRef.current(data.type, data.payload || {});
+    };
+    window.addEventListener('message', onWindowMessage);
+    return () => window.removeEventListener('message', onWindowMessage);
+  }, [id, autoHeight]);
+  useEffect(() => {
+    if (!apiRef) return undefined;
+    apiRef.current = {
+      send: (type, payload) => {
+        const target = iframeRef.current && iframeRef.current.contentWindow;
+        if (target) {
+          target.postMessage({
+            target: DEMO_SOURCE,
+            v: 1,
+            frame: id,
+            type,
+            payload
+          }, window.location.origin);
+        }
+      }
+    };
+    return () => {
+      apiRef.current = null;
+    };
+  }, [apiRef, id]);
+  const natural = fluid || cardWidth > 0 && cardWidth < 640;
+  const scale = natural || cardWidth === 0 ? 1 : cardWidth / width;
+  const logicalHeight = fitHeight && !natural ? Math.round(fitHeight / scale) : height;
+  const boxHeight = natural ? fitHeight || autoHeight && contentHeight || naturalHeight : Math.round(logicalHeight * scale);
+  const [src] = useState(() => demoUrl(scene, id, {
+    chrome,
+    turnstile,
+    reset,
+    requires,
+    latency: interactive ? null : 'fast',
+    still: interactive ? null : '1'
+  }));
+  const dark = tone === 'dark';
+  const posterKey = scene + '-' + chrome;
+  const poster = !natural && !interactive && POSTERS.indexOf(posterKey) !== -1 ? '/assets/app/' + posterKey + '.webp' : null;
+  return React.createElement("figure", {
+    ref: nearRef,
+    "data-ui": true,
+    style: {
+      margin: 0,
+      minWidth: 0,
+      overflow: 'hidden',
+      border: `1px solid ${dark ? 'var(--border-on-dark)' : 'var(--border-default)'}`,
+      borderRadius: 'var(--radius-lg)',
+      background: 'var(--surface-card)',
+      ...style
+    }
+  }, address && React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 16,
+      minHeight: 40,
+      padding: '8px 16px',
+      borderBottom: '1px solid var(--border-utility)',
+      background: 'var(--surface-card-stone)'
+    }
+  }, React.createElement("span", {
+    style: {
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      fontFamily: 'var(--font-mono)',
+      fontSize: 13,
+      color: 'var(--text-secondary)'
+    }
+  }, address), React.createElement("span", {
+    style: {
+      flex: '0 0 auto',
+      fontSize: 13,
+      color: 'var(--text-secondary)'
+    }
+  }, interactive ? 'En vivo · datos ficticios' : 'Datos ficticios')), React.createElement("div", {
+    ref: sizeRef,
+    style: {
+      position: 'relative',
+      height: boxHeight,
+      background: 'var(--surface-card)'
+    }
+  }, !ready && !poster && React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      position: 'absolute',
+      inset: 0,
+      display: 'grid',
+      placeItems: 'center',
+      background: 'var(--surface-wash-mist)',
+      color: 'var(--text-tertiary)',
+      fontSize: 14
+    }
+  }, "Abriendo Consenty\u2026"), !ready && poster && React.createElement("img", {
+    src: poster,
+    alt: "",
+    decoding: "async",
+    loading: eager ? 'eager' : 'lazy',
+    fetchpriority: eager ? 'high' : undefined,
+    style: {
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      maxWidth: 'none',
+      objectFit: 'cover',
+      objectPosition: 'left top'
+    }
+  }), mounted && React.createElement("iframe", _extends({
+    ref: iframeRef,
+    src: src,
+    title: label,
+    loading: eager ? undefined : 'lazy',
+    tabIndex: interactive ? undefined : -1,
+    "aria-hidden": interactive ? undefined : 'true'
+  }, interactive ? {} : {
+    inert: ''
+  }, {
+    style: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      border: 0,
+      display: 'block',
+      width: natural ? '100%' : width,
+      height: natural ? '100%' : logicalHeight,
+      transform: natural ? undefined : `scale(${scale})`,
+      transformOrigin: '0 0',
+      opacity: ready ? 1 : 0,
+      transition: 'opacity var(--duration-slow) var(--ease-standard)',
+      pointerEvents: interactive ? undefined : 'none'
+    }
+  }))), !interactive && React.createElement("figcaption", {
+    className: "cns-visually-hidden"
+  }, label));
+}
+const FLOW = [{
+  key: 'configura',
+  icon: 'list-checks',
+  short: 'Configurar',
+  side: 'Tu empresa',
+  title: 'Declaras qué datos usas y para qué',
+  body: 'Cada permiso lleva su base legal, su plazo y un texto versionado. Lo que tu cliente verá sale de aquí.',
+  scene: 'empresa-datos',
+  address: APP_HOST + '/dashboard/tienda-alba/data-types'
+}, {
+  key: 'captura',
+  icon: 'mouse-pointer-click',
+  short: 'Capturar',
+  side: 'Tu cliente',
+  title: 'Tu cliente decide en tu propio formulario',
+  body: 'El widget verifica su correo con un código y pide cada permiso por separado. Nada viene marcado.',
+  scene: 'titular-widget-permisos',
+  address: SHOP_HOST + '/cotizar',
+  fluid: true,
+  tall: 720
+}, {
+  key: 'evidencia',
+  icon: 'link',
+  short: 'Evidencia',
+  side: 'Tu empresa',
+  title: 'Cada decisión queda encadenada en el ledger',
+  body: 'Sello de tiempo, versión del texto y hash enlazado al anterior. La integridad se comprueba con un clic.',
+  scene: 'empresa-ledger-verificado',
+  address: APP_HOST + '/dashboard/tienda-alba/ledger'
+}, {
+  key: 'portal',
+  icon: 'undo-2',
+  short: 'Revocar',
+  side: 'Tu cliente',
+  title: 'Puede revocar cuando quiera, sin llamarte',
+  body: 'En su portal ve qué autorizó, hasta cuándo, y lo cambia. La revocación llega a tu panel al instante.',
+  scene: 'titular-portal',
+  address: APP_HOST + '/portal/consentimientos',
+  fluid: true
+}, {
+  key: 'derechos',
+  icon: 'clock',
+  short: 'Responder',
+  side: 'Tu empresa',
+  title: 'Respondes cada solicitud dentro del plazo',
+  body: 'Las solicitudes de derechos llegan con folio, acuse y vencimiento a 30 días. La respuesta emite su documento.',
+  scene: 'empresa-solicitud-detalle',
+  address: APP_HOST + '/dashboard/tienda-alba/rights-requests'
+}];
+function tabKeyHandler(count, current, select) {
+  return e => {
+    const move = {
+      ArrowRight: 1,
+      ArrowDown: 1,
+      ArrowLeft: -1,
+      ArrowUp: -1
+    }[e.key];
+    if (!move) return;
+    e.preventDefault();
+    const next = (current + move + count) % count;
+    select(next);
+    const tabs = e.currentTarget.parentNode.querySelectorAll('[role="tab"]');
+    if (tabs[next]) tabs[next].focus();
+  };
+}
+function ScreenTour({
+  items,
+  name,
+  mobile,
+  cta
+}) {
+  const [index, setIndex] = useState(0);
+  const step = items[index];
+  return React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'clamp(28px,4vw,56px)',
+      alignItems: 'start',
+      gridTemplateColumns: mobile ? '1fr' : 'minmax(300px,5fr) 8fr'
+    }
+  }, React.createElement("div", null, React.createElement("div", {
+    role: "tablist",
+    "aria-label": name,
+    "aria-orientation": mobile ? 'horizontal' : 'vertical',
+    className: mobile ? 'cns-flow-tabs cns-flow-tabs--row' : 'cns-flow-tabs'
+  }, items.map((item, i) => {
+    const selected = i === index;
+    return React.createElement("button", {
+      key: item.key,
+      role: "tab",
+      type: "button",
+      id: 'tour-tab-' + item.key,
+      "aria-selected": selected,
+      "aria-controls": 'tour-panel-' + items[0].key,
+      tabIndex: selected ? 0 : -1,
+      onClick: () => setIndex(i),
+      onKeyDown: tabKeyHandler(items.length, index, setIndex),
+      className: "cns-flow-tab"
+    }, item.icon && React.createElement("span", {
+      className: "cns-flow-tab__icon"
+    }, React.createElement(Icon, {
+      name: item.icon,
+      size: mobile ? 18 : 20,
+      tone: selected ? 'dark' : 'muted'
+    })), React.createElement("span", {
+      className: "cns-flow-tab__text"
+    }, !mobile && React.createElement("span", {
+      className: "cns-flow-tab__side"
+    }, item.side), React.createElement("span", {
+      className: "cns-flow-tab__title"
+    }, mobile ? item.short : item.title), selected && !mobile && React.createElement("span", {
+      className: "cns-flow-tab__body"
+    }, item.body)));
+  })), mobile && React.createElement("div", {
+    style: {
+      marginTop: 24
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: 'var(--text-tertiary)'
+    }
+  }, step.side), React.createElement("h3", {
+    className: "cns-feature-heading",
+    style: {
+      margin: '6px 0 0',
+      textWrap: 'balance'
+    }
+  }, step.title), React.createElement("p", {
+    className: "cns-body",
+    style: {
+      margin: '10px 0 0',
+      color: 'var(--text-secondary)',
+      textWrap: 'pretty'
+    }
+  }, step.body)), cta && React.createElement("div", {
+    style: {
+      marginTop: 'clamp(24px,3vw,36px)'
+    }
+  }, cta(step))), React.createElement("div", {
+    id: 'tour-panel-' + items[0].key,
+    role: "tabpanel",
+    "aria-labelledby": 'tour-tab-' + step.key,
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement(AppFrame, {
+    key: step.key,
+    scene: step.scene,
+    label: step.side + ': ' + step.title,
+    address: step.address,
+    fluid: Boolean(step.fluid),
+    naturalHeight: step.tall || (step.fluid ? 640 : 600),
+    chrome: step.fluid ? 'full' : 'content',
+    width: 1040,
+    height: 760
+  })));
+}
+function ProductSplit({
+  id,
+  eyebrow,
+  heading,
+  body,
+  children,
+  frame,
+  reverse = false,
+  mobile,
+  level = 2
+}) {
+  const Heading = 'h' + level;
+  const text = React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, eyebrow && React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, eyebrow), React.createElement(Heading, {
+    className: "cns-card-heading",
+    style: {
+      margin: eyebrow ? '16px 0 0' : 0,
+      maxWidth: '20ch',
+      fontSize: 'clamp(26px,3.2vw,40px)',
+      letterSpacing: '-0.02em',
+      textWrap: 'balance'
+    }
+  }, heading), body && React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '20px 0 0',
+      maxWidth: '52ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.5vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, body), children);
+  const picture = React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, frame);
+  return React.createElement("div", {
+    id: id,
+    style: {
+      display: 'grid',
+      gap: 'clamp(28px,4vw,64px)',
+      alignItems: 'center',
+      gridTemplateColumns: mobile ? '1fr' : reverse ? '7fr 5fr' : '5fr 7fr'
+    }
+  }, reverse && !mobile ? picture : text, reverse && !mobile ? text : picture);
+}
+function DemoLink({
+  navigate,
+  step,
+  children
+}) {
+  return React.createElement("a", _extends({}, navLinkProps('demo', navigate, {
+    search: 'paso=' + step
+  }), {
+    style: {
+      display: 'inline-block',
+      marginTop: 24,
+      fontSize: 16,
+      color: 'var(--text-link)',
+      textUnderlineOffset: 3
+    }
+  }), children);
+}
+function MailToast({
+  mail
+}) {
+  const [closed, setClosed] = useState(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    setCopied(false);
+  }, [mail]);
+  if (!mail || closed === mail) return null;
+  const copy = () => {
+    try {
+      navigator.clipboard.writeText(mail.code).catch(() => {});
+    } catch (e) {}
+    setCopied(true);
+  };
+  return React.createElement("div", {
+    className: "cns-mail-toast",
+    role: "status",
+    "aria-live": "polite"
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, React.createElement(Icon, {
+    name: "mail",
+    size: 16,
+    tone: "light"
+  }), React.createElement("span", {
+    style: {
+      flex: 1,
+      fontSize: 13,
+      color: 'rgba(255,255,255,.72)'
+    }
+  }, "Correo nuevo \xB7 simulado"), React.createElement("button", {
+    type: "button",
+    onClick: () => setClosed(mail),
+    "aria-label": "Cerrar la notificaci\xF3n",
+    className: "cns-mail-toast__close"
+  }, "\xD7")), React.createElement("div", {
+    style: {
+      marginTop: 12,
+      fontSize: 15
+    }
+  }, "Tu c\xF3digo de verificaci\xF3n de Consenty"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '10px 16px',
+      marginTop: 8
+    }
+  }, React.createElement("strong", {
+    className: "cns-mail-toast__code"
+  }, mail.code), React.createElement("button", {
+    type: "button",
+    onClick: copy,
+    className: "cns-mail-toast__copy"
+  }, copied ? 'Copiado' : 'Copiar')), React.createElement("div", {
+    style: {
+      marginTop: 10,
+      fontSize: 13,
+      lineHeight: 1.4,
+      color: 'rgba(255,255,255,.72)'
+    }
+  }, "Para ", mail.email, ". En producci\xF3n llega al correo del titular; aqu\xED no se env\xEDa nada."));
+}
+function useSimulatedMail() {
+  const [mail, setMail] = useState(null);
+  const onMessage = useCallback((type, payload) => {
+    if (type === 'otp-sent') setMail(payload);
+    if (type === 'otp-verified') setMail(null);
+  }, []);
+  return [mail, onMessage];
+}
+function LiveHero({
+  scene,
+  label,
+  address,
+  mobile
+}) {
+  const [mail, onWidgetMessage] = useSimulatedMail();
+  const height = mobile ? 560 : 600;
+  const columns = mobile ? '1fr' : 'minmax(0,1fr) minmax(340px,400px)';
+  return React.createElement("div", null, React.createElement(MailToast, {
+    mail: mail
+  }), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'clamp(16px,2vw,24px)',
+      alignItems: 'start',
+      gridTemplateColumns: columns
+    }
+  }, React.createElement(AppFrame, {
+    eager: true,
+    scene: scene,
+    label: label,
+    address: address,
+    fitHeight: height
+  }), React.createElement(AppFrame, {
+    interactive: true,
+    fluid: true,
+    eager: true,
+    scene: "titular-widget-autonomo",
+    label: "El widget de Consenty en el sitio de una tienda de ejemplo",
+    address: SHOP_HOST + '/privacidad',
+    fitHeight: height,
+    onMessage: onWidgetMessage
+  })), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: '8px clamp(16px,2vw,24px)',
+      gridTemplateColumns: columns,
+      marginTop: 14,
+      fontSize: 14,
+      lineHeight: 1.45,
+      color: 'var(--text-secondary)'
+    }
+  }, React.createElement("span", {
+    style: {
+      textWrap: 'pretty'
+    }
+  }, "Es la aplicaci\xF3n real, funcionando en tu navegador con una empresa ficticia."), React.createElement("span", {
+    style: {
+      textWrap: 'pretty'
+    }
+  }, mail ? React.createElement(Fragment, null, "Te lleg\xF3 una notificaci\xF3n con el c\xF3digo:", ' ', React.createElement("strong", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      letterSpacing: '.1em',
+      color: 'var(--color-ink)'
+    }
+  }, mail.code)) : 'Prueba el widget con el RUT 12.345.678-5 y cualquier correo. El código llega como notificación.')));
+}
+function bandHeading(text) {
+  return React.createElement("span", {
+    style: {
+      display: 'block',
+      fontSize: 'clamp(32px,5.6vw,60px)',
+      textWrap: 'balance'
+    }
+  }, text);
+}
 function useBandActions(navigate) {
   return React.createElement(Fragment, null, React.createElement(Button, {
     variant: "primary-inverse",
-    onClick: () => navigate('demo')
-  }, "Agendar demo"), React.createElement("a", {
-    href: "#/implementacion",
-    "data-plain": true,
-    onClick: () => navigate('implementacion'),
+    onClick: () => navigate('demo', BOOKING)
+  }, "Agendar demo"), React.createElement("a", _extends({
+    "data-plain": true
+  }, navLinkProps('implementacion', navigate), {
     style: {
       color: 'var(--color-on-dark)',
       fontSize: 16
     }
-  }, "Ver la implementaci\xF3n"));
+  }), "Ver la implementaci\xF3n"));
 }
-function ConsoleOverlay() {
-  return React.createElement(AgentConsoleCard, {
-    title: "Consenty \xB7 Registro de consentimientos",
-    status: "Al d\xEDa",
-    integrations: INTEGRATIONS,
-    prompt: "\xBFQu\xE9 base de licitud respalda la campa\xF1a de octubre?",
-    response: "3.482 consentimientos vigentes \xB7 2 flujos requieren revisi\xF3n \xB7 expediente listo para exportar."
-  });
-}
-function ModuleGrid({
-  navigate
-}) {
+function ModuleGrid() {
   return React.createElement("div", {
     style: {
       display: 'grid',
@@ -697,20 +1361,27 @@ function ModuleGrid({
     description: m.description,
     bullets: m.bullets,
     ctaLabel: m.ctaLabel,
-    onClick: () => navigate('modulos')
+    href: hrefFor('modulos', {
+      hash: m.anchor
+    })
   })));
 }
 function LogoMarqueeCell({
   item,
   decorative
 }) {
+  const [failed, setFailed] = useState(false);
   return React.createElement("span", {
     className: "cns-logo-cell",
     "aria-hidden": decorative ? 'true' : undefined
-  }, item.src ? React.createElement("img", {
+  }, item.src && !failed ? React.createElement("img", {
     src: item.src,
     alt: item.name,
-    className: "cns-logo-cell__img"
+    className: "cns-logo-cell__img",
+    style: item.height ? {
+      height: item.height
+    } : undefined,
+    onError: () => setFailed(true)
   }) : item.name);
 }
 function LogoMarquee({
@@ -743,7 +1414,8 @@ function LogoMarquee({
 }
 function HomeScreen({
   navigate,
-  daysLeft
+  daysLeft,
+  mobile
 }) {
   const bandActions = useBandActions(navigate);
   return React.createElement("main", {
@@ -783,10 +1455,10 @@ function HomeScreen({
   }, React.createElement(Button, {
     variant: "primary",
     onClick: () => navigate('demo')
-  }, "Agendar demo"), React.createElement(Button, {
+  }, "Probar la demo"), React.createElement(Button, {
     variant: "secondary",
-    onClick: () => navigate('plataforma')
-  }, "Ver la plataforma")), React.createElement("div", {
+    onClick: () => navigate('demo', BOOKING)
+  }, "Agendar una reuni\xF3n")), React.createElement("div", {
     style: {
       display: 'flex',
       flexWrap: 'wrap',
@@ -807,33 +1479,44 @@ function HomeScreen({
     }
   }, "\xB7"), React.createElement("span", null, "Derechos BARCOP completos"))), React.createElement(Shell, {
     pad: `clamp(40px,7vw,80px) ${GUTTER} 0`
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 24
-    }
-  }, React.createElement("div", {
-    style: {
-      flex: '3 1 420px',
-      minWidth: 0
-    }
-  }, React.createElement(HeroPhotoCard, {
-    ratio: "16 / 9",
-    radius: "var(--radius-lg)",
-    overlay: React.createElement(ConsoleOverlay, null)
-  })), React.createElement("div", {
-    style: {
-      flex: '1 1 260px',
-      minWidth: 0
-    }
-  }, React.createElement(HeroPhotoCard, {
-    ratio: "3 / 4",
-    radius: "var(--radius-lg)",
-    caption: "Equipos de legal, seguridad y marketing sobre un mismo registro."
-  })))), React.createElement(Shell, null, React.createElement(LogoMarquee, {
+  }, React.createElement(LiveHero, {
+    mobile: mobile,
+    scene: "empresa-panel",
+    label: "Panel de control de Consenty con los consentimientos de una empresa de ejemplo",
+    address: APP_HOST + '/dashboard/tienda-alba'
+  })), React.createElement(Shell, null, React.createElement(LogoMarquee, {
     eyebrow: "Organizaciones que est\xE1n preparando su cumplimiento con Consenty (nombres de referencia)",
     items: CLIENT_NAMES
+  })), React.createElement(Shell, {
+    pad: `0 ${GUTTER} clamp(64px,9vw,120px)`
+  }, React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: 0,
+      maxWidth: '22ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em',
+      textWrap: 'balance'
+    }
+  }, "Del formulario al expediente, en cinco pasos"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '20px 0 clamp(32px,5vw,56px)',
+      maxWidth: '58ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Lo que configura tu empresa, lo que ve tu cliente y lo que queda como prueba. Cada pantalla es la del producto."), React.createElement(ScreenTour, {
+    items: FLOW,
+    name: "Pasos del flujo",
+    mobile: mobile,
+    cta: step => React.createElement(Button, {
+      variant: "secondary",
+      onClick: () => navigate('demo', {
+        search: 'paso=' + (step.key === 'configura' ? 'captura' : step.key)
+      })
+    }, "Hacer este paso en la demo")
   })), React.createElement(Shell, {
     pad: `0 ${GUTTER} clamp(64px,9vw,120px)`
   }, React.createElement("h2", {
@@ -857,18 +1540,22 @@ function HomeScreen({
       size: 28
     }),
     title: "Consentimiento verificable",
-    body: "Cada permiso queda registrado con fecha, canal, versi\xF3n de t\xE9rminos y el texto exacto que acept\xF3 el titular.",
+    body: "Cada permiso queda registrado con fecha, versi\xF3n de t\xE9rminos y el texto exacto que acept\xF3 el titular.",
     linkLabel: "Ver la captura",
-    onClick: () => navigate('modulos')
+    href: hrefFor('demo', {
+      search: 'paso=captura'
+    })
   }), React.createElement(CapabilityCard, {
     icon: React.createElement(Icon, {
       name: "clock",
       size: 28
     }),
-    title: "Solicitudes BARCOP en plazo",
-    body: "Los 30 d\xEDas que fija la ley vienen integrados: alertas, responsables y respuesta con evidencia adjunta.",
+    title: "Solicitudes de derechos en plazo",
+    body: "Los 30 d\xEDas que fija la ley vienen integrados: folio, acuse, alertas y respuesta con su documento.",
     linkLabel: "Ver el flujo",
-    onClick: () => navigate('modulos')
+    href: hrefFor('demo', {
+      search: 'paso=derechos'
+    })
   }), React.createElement(CapabilityCard, {
     icon: React.createElement(Icon, {
       name: "file-text",
@@ -876,27 +1563,96 @@ function HomeScreen({
     }),
     title: "Expediente exportable",
     body: "Ante una fiscalizaci\xF3n de la APDP, el expediente completo de evidencia se exporta en minutos, no en semanas.",
-    linkLabel: "Ver un expediente",
-    onClick: () => navigate('plataforma')
+    linkLabel: "Ver la evidencia",
+    href: hrefFor('demo', {
+      search: 'paso=evidencia'
+    })
   }))), React.createElement(DarkFeatureBand, {
     tone: "slate",
-    eyebrow: "Evidencia",
-    heading: "Registros estructurados, no archivos est\xE1ticos",
-    body: "Cada captura genera un sello de tiempo, la versi\xF3n exacta de los t\xE9rminos y un hash de evidencia inalterable. Los comprobantes se generan on-demand desde el registro, as\xED que siempre reflejan la realidad de la base de datos.",
-    actions: bandActions
-  }), React.createElement(Shell, {
-    pad: `clamp(64px,9vw,120px) ${GUTTER}`
-  }, React.createElement(MonoLabel, null, "M\xF3dulos"), React.createElement("div", {
     style: {
-      marginTop: 32
+      padding: 'clamp(56px,8vw,96px) 0'
     }
-  }, React.createElement(ModuleGrid, {
-    navigate: navigate
-  }))));
+  }, React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'clamp(32px,5vw,72px)',
+      alignItems: 'center',
+      marginTop: 'calc(var(--space-56) * -1)',
+      gridTemplateColumns: mobile ? '1fr' : '5fr 7fr'
+    }
+  }, React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement(MonoLabel, {
+    tone: "soft"
+  }, "Evidencia"), React.createElement("h2", {
+    className: "cns-section-display",
+    style: {
+      margin: '24px 0 0',
+      fontSize: 'clamp(32px,4.6vw,56px)',
+      letterSpacing: '-0.03em',
+      textWrap: 'balance'
+    }
+  }, "Registros estructurados, no archivos est\xE1ticos"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '24px 0 0',
+      maxWidth: '52ch',
+      color: 'rgba(255,255,255,.72)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Cada captura genera un sello de tiempo, la versi\xF3n exacta de los t\xE9rminos y un hash de evidencia inalterable. Los comprobantes se generan on-demand desde el registro, as\xED que siempre reflejan la realidad de la base de datos."), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 24,
+      marginTop: 40
+    }
+  }, bandActions)), React.createElement(AppFrame, {
+    tone: "dark",
+    scene: "empresa-ficha",
+    chrome: "content",
+    width: 1040,
+    height: 720,
+    label: "El registro de un titular: consentimientos, identidad y l\xEDnea de tiempo",
+    address: APP_HOST + '/dashboard/tienda-alba/subjects'
+  }))), React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER}`
+  }, React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: '0 0 clamp(32px,5vw,56px)',
+      maxWidth: '22ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em'
+    }
+  }, "Tres m\xF3dulos, un solo registro"), React.createElement(ModuleGrid, null)));
 }
+const PILAR_SCREENS = [{
+  scene: 'empresa-solicitud-detalle',
+  address: APP_HOST + '/dashboard/tienda-alba/rights-requests',
+  label: 'Una solicitud de derechos en la consola, con su folio, plazo y respuesta',
+  step: 'derechos',
+  link: 'Ver una solicitud en la demo'
+}, {
+  scene: 'empresa-ficha',
+  address: APP_HOST + '/dashboard/tienda-alba/subjects',
+  label: 'El registro de un titular: sus consentimientos, identidad y línea de tiempo',
+  step: 'evidencia',
+  link: 'Ver la evidencia en la demo'
+}, {
+  scene: 'empresa-integracion-instalacion',
+  address: APP_HOST + '/dashboard/tienda-alba/integrations',
+  label: 'La instalación de una integración: el código que se pega en el sitio',
+  step: 'captura',
+  link: 'Ver el widget en la demo'
+}];
 function PlataformaScreen({
   navigate,
-  narrow
+  mobile
 }) {
   const bandActions = useBandActions(navigate);
   return React.createElement("main", {
@@ -925,44 +1681,51 @@ function PlataformaScreen({
     }
   }, "Consenty recopila, organiza y gestiona consentimientos bajo los est\xE1ndares que define la Ley 21.719, con trazabilidad auditable en tiempo real y sin frenar al negocio.")), React.createElement(Shell, {
     pad: `clamp(40px,6vw,80px) ${GUTTER} 0`
-  }, React.createElement(HeroPhotoCard, {
-    ratio: narrow ? '4 / 3' : '21 / 9',
-    radius: "var(--radius-lg)",
-    overlay: React.createElement(ConsoleOverlay, null)
+  }, React.createElement(LiveHero, {
+    mobile: mobile,
+    scene: "empresa-ledger-verificado",
+    label: "El ledger legal de Consenty con su cadena de evidencia verificada",
+    address: APP_HOST + '/dashboard/tienda-alba/ledger'
   })), React.createElement(Shell, {
     pad: `clamp(64px,9vw,120px) ${GUTTER}`
-  }, React.createElement(MonoLabel, null, "3 pilares"), React.createElement("div", {
+  }, React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: 0,
+      maxWidth: '20ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em',
+      textWrap: 'balance'
+    }
+  }, "Tres pilares, cada uno en pantalla"), React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
-      gap: 'clamp(28px,3.5vw,32px)',
-      marginTop: 32
+      gap: 'clamp(56px,8vw,112px)',
+      marginTop: 'clamp(40px,6vw,72px)'
     }
-  }, PILARES.map(([num, title, body]) => React.createElement("div", {
+  }, PILARES.map(([num, title, body], i) => React.createElement(ProductSplit, {
     key: num,
-    style: {
-      borderTop: '1px solid var(--border-default)',
-      paddingTop: 28
-    }
-  }, React.createElement(MonoLabel, {
-    tone: "indigo"
-  }, num), React.createElement("h2", {
-    className: "cns-card-heading",
-    style: {
-      margin: '16px 0 0',
-      fontSize: 'clamp(24px,2.6vw,32px)'
-    }
-  }, title), React.createElement("p", {
-    className: "cns-body",
-    style: {
-      margin: '16px 0 0',
-      color: 'var(--text-secondary)',
-      textWrap: 'pretty'
-    }
-  }, body))))), React.createElement(DarkFeatureBand, {
+    level: 3,
+    mobile: mobile,
+    reverse: i % 2 === 1,
+    eyebrow: 'Pilar ' + num,
+    heading: title,
+    body: body,
+    frame: React.createElement(AppFrame, {
+      scene: PILAR_SCREENS[i].scene,
+      label: PILAR_SCREENS[i].label,
+      address: PILAR_SCREENS[i].address,
+      chrome: "content",
+      width: 1040,
+      height: 720
+    })
+  }, React.createElement(DemoLink, {
+    navigate: navigate,
+    step: PILAR_SCREENS[i].step
+  }, PILAR_SCREENS[i].link))))), React.createElement(DarkFeatureBand, {
     tone: "slate",
     eyebrow: "Evidencia",
-    heading: "Respuesta inmediata ante una fiscalizaci\xF3n",
+    heading: bandHeading("Respuesta inmediata ante una fiscalización"),
     body: "Consenty exporta expedientes de evidencia con trazabilidad completa: sello de tiempo, versi\xF3n de t\xE9rminos, hash y canal de cada captura. Demuestra la legitimidad del tratamiento y audita internamente el uso del producto.",
     actions: bandActions
   }), React.createElement(Shell, {
@@ -975,169 +1738,44 @@ function PlataformaScreen({
       fontSize: 'clamp(30px,4.4vw,48px)',
       letterSpacing: '-0.025em'
     }
-  }, "Tres m\xF3dulos, un solo registro"), React.createElement(ModuleGrid, {
-    navigate: navigate
-  })));
+  }, "Tres m\xF3dulos, un solo registro"), React.createElement(ModuleGrid, null)));
 }
-const PURPOSES = [{
-  key: 'comerciales',
-  title: 'Comunicaciones comerciales',
-  detail: 'Ofertas y novedades por correo.'
-}, {
-  key: 'perfilamiento',
-  title: 'Perfilamiento y recomendaciones',
-  detail: 'Personalizar lo que ves según tu actividad.'
-}, {
-  key: 'terceros',
-  title: 'Compartir con terceros',
-  detail: 'Socios comerciales seleccionados.'
-}];
-function ConsentWidget() {
-  const [accepted, setAccepted] = useState([false, false, false]);
-  const [evidence, setEvidence] = useState(null);
-  const toggle = i => () => {
-    setAccepted(prev => prev.map((v, n) => n === i ? !v : v));
-    setEvidence(null);
-  };
-  const save = () => setEvidence(Date.now());
-  const chosen = PURPOSES.filter((p, i) => accepted[i]).map(p => p.key);
-  const record = evidence && {
-    timestamp: new Date(evidence).toISOString().replace('T', ' ').slice(0, 19) + ' UTC',
-    finalidades: chosen.length ? chosen.join(', ') : 'ninguna aceptada',
-    hash: 'sha256:' + (evidence.toString(16) + '9f2c41ab7d').slice(0, 16)
-  };
+function MailNote({
+  mail
+}) {
   return React.createElement("div", {
     style: {
-      flex: '1 1 320px',
-      minWidth: 0,
-      background: 'var(--surface-card)',
-      border: '1px solid var(--border-utility)',
-      borderRadius: 'var(--radius-lg)',
-      overflow: 'hidden'
-    }
-  }, React.createElement("div", {
-    style: {
-      padding: '24px clamp(18px,2.5vw,28px) 18px',
-      borderBottom: '1px solid var(--border-subtle)'
-    }
-  }, React.createElement("div", {
-    className: "cns-feature-heading"
-  }, "Tus preferencias de datos"), React.createElement("p", {
-    style: {
-      margin: '8px 0 0',
+      minHeight: 44,
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: 10,
       fontSize: 14,
+      lineHeight: 1.4,
       color: 'var(--text-secondary)'
     }
-  }, "T\xE9rminos v2.4 \xB7 Puedes cambiarlas cuando quieras.")), React.createElement("div", {
+  }, mail ? React.createElement("span", {
     style: {
-      padding: '4px clamp(18px,2.5vw,28px)'
-    }
-  }, PURPOSES.map((p, i) => React.createElement("div", {
-    key: p.key,
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: 16,
-      padding: '18px 0',
-      borderBottom: i < PURPOSES.length - 1 ? '1px solid var(--border-subtle)' : undefined
-    }
-  }, React.createElement("div", {
-    style: {
-      minWidth: 0
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 15,
-      fontWeight: 500
-    }
-  }, p.title), React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: 'var(--text-tertiary)',
-      marginTop: 4
-    }
-  }, p.detail)), React.createElement("button", {
-    onClick: toggle(i),
-    role: "switch",
-    "aria-checked": accepted[i],
-    "aria-label": p.title,
-    style: {
-      flex: '0 0 auto',
-      width: 48,
-      height: 28,
-      borderRadius: 'var(--radius-full)',
-      border: '1px solid var(--border-default)',
-      cursor: 'pointer',
-      padding: 2,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: accepted[i] ? 'flex-end' : 'flex-start',
-      background: accepted[i] ? 'var(--color-indigo)' : 'var(--border-utility)',
-      transition: 'var(--transition-color)'
+      background: 'var(--surface-wash-indigo)',
+      borderRadius: 'var(--radius-md)',
+      padding: '10px 14px',
+      color: 'var(--color-ink)'
     }
   }, React.createElement("span", {
     style: {
-      width: 22,
-      height: 22,
-      borderRadius: 'var(--radius-full)',
-      background: '#fff',
-      display: 'block'
+      color: 'var(--text-secondary)'
     }
-  }))))), React.createElement("div", {
+  }, "Correo simulado para ", mail.email, ": "), "tu c\xF3digo es", ' ', React.createElement("strong", {
     style: {
-      padding: '18px clamp(18px,2.5vw,28px) 24px',
-      borderTop: '1px solid var(--border-subtle)',
-      display: 'flex',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      gap: '12px 20px'
-    }
-  }, React.createElement(Button, {
-    variant: "primary",
-    size: "sm",
-    onClick: save
-  }, "Guardar preferencias"), React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: 'var(--text-tertiary)'
-    }
-  }, "Se registra con sello de tiempo y hash")), record && React.createElement("div", {
-    role: "status",
-    style: {
-      background: 'var(--surface-inverse)',
-      color: 'var(--color-on-dark)',
-      padding: '24px clamp(18px,2.5vw,28px)'
-    }
-  }, React.createElement(MonoLabel, {
-    tone: "soft"
-  }, "Registro de evidencia"), React.createElement("div", {
-    style: {
-      marginTop: 16,
-      display: 'grid',
-      gap: 10,
       fontFamily: 'var(--font-mono)',
-      fontSize: 12,
-      color: 'rgba(255,255,255,.72)'
+      letterSpacing: '.1em'
     }
-  }, [['timestamp', record.timestamp, false], ['finalidades', record.finalidades, false], ['versión términos', 'v2.4', false], ['canal', 'web / checkout', false], ['hash', record.hash, true]].map(([k, v, wrap]) => React.createElement("div", {
-    key: k,
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      gap: 16,
-      flexWrap: 'wrap'
-    }
-  }, React.createElement("span", null, k), React.createElement("span", {
-    style: {
-      color: 'var(--color-on-dark)',
-      wordBreak: wrap ? 'break-all' : undefined
-    }
-  }, v))))));
+  }, mail.code)) : 'Pruébalo como lo ve tu cliente: es el widget real, con datos de ejemplo.');
 }
 function ModulosScreen({
-  navigate
+  navigate,
+  mobile
 }) {
+  const [mail, onWidgetMessage] = useSimulatedMail();
   return React.createElement("main", {
     id: "contenido"
   }, React.createElement(Shell, {
@@ -1165,14 +1803,15 @@ function ModulosScreen({
   }, "Tres componentes que cubren el ciclo completo del consentimiento: d\xF3nde se pide, qui\xE9n lo supervisa y c\xF3mo lo ejerce el titular.")), React.createElement(Shell, {
     pad: `clamp(48px,7vw,100px) ${GUTTER} 0`
   }, React.createElement("div", {
+    id: "captura",
     style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 'clamp(40px,6vw,80px)'
+      display: 'grid',
+      gap: 'clamp(32px,5vw,72px)',
+      alignItems: 'start',
+      gridTemplateColumns: mobile ? '1fr' : 'minmax(0,6fr) minmax(360px,5fr)'
     }
   }, React.createElement("div", {
     style: {
-      flex: '1 1 380px',
       minWidth: 0
     }
   }, React.createElement(MonoLabel, null, "Componente 1"), React.createElement("h2", {
@@ -1199,82 +1838,37 @@ function ModulosScreen({
     }
   }, React.createElement(CheckRow, null, "Formulario web y e-commerce (checkout, registros)"), React.createElement(CheckRow, null, "App m\xF3vil y centro de preferencias"), React.createElement(CheckRow, null, "Canales offline: sucursal, call center, terreno"), React.createElement(CheckRow, {
     last: true
-  }, "CRM y plataformas de marketing v\xEDa API o webhook"))), React.createElement("div", {
-    style: {
-      flex: '1 1 320px',
-      minWidth: 0,
-      background: 'var(--surface-card-stone)',
-      borderRadius: 'var(--radius-lg)',
-      padding: 'clamp(24px,3vw,36px)'
-    }
-  }, React.createElement(MonoLabel, null, "Alta del titular"), React.createElement("div", {
-    style: {
-      marginTop: 28,
-      display: 'grid',
-      gap: 0
-    }
-  }, ALTA_STEPS.map(([num, title, body], i) => React.createElement("div", {
-    key: num,
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'auto 1fr',
-      gap: 20,
-      paddingBottom: i < ALTA_STEPS.length - 1 ? 24 : 0,
-      paddingTop: i > 0 ? 24 : 0,
-      borderBottom: i < ALTA_STEPS.length - 1 ? '1px solid var(--border-utility)' : undefined
-    }
-  }, React.createElement(MonoLabel, {
-    tone: "indigo"
-  }, num), React.createElement("div", null, React.createElement("div", {
-    className: "cns-feature-heading"
-  }, title), React.createElement("p", {
+  }, "CRM y plataformas de marketing v\xEDa API o webhook")), React.createElement("p", {
     className: "cns-body",
     style: {
-      margin: '8px 0 0',
-      color: 'var(--text-secondary)'
-    }
-  }, body)))))))), React.createElement(Shell, {
-    pad: `clamp(48px,7vw,100px) ${GUTTER} 0`
-  }, React.createElement("div", {
-    style: {
-      background: 'var(--surface-wash-mist)',
-      border: '1px solid var(--border-subtle)',
-      borderRadius: 'var(--radius-xl)',
-      padding: 'clamp(24px,4vw,56px)'
-    }
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 'clamp(32px,5vw,64px)'
-    }
-  }, React.createElement("div", {
-    style: {
-      flex: '1 1 320px',
-      minWidth: 0
-    }
-  }, React.createElement(MonoLabel, {
-    tone: "indigo"
-  }, "Widget de captura"), React.createElement("h2", {
-    className: "cns-section-heading",
-    style: {
-      margin: '20px 0 0',
-      maxWidth: '18ch',
-      fontSize: 'clamp(28px,4.2vw,48px)',
-      letterSpacing: '-0.025em',
-      textWrap: 'balance'
-    }
-  }, "Pru\xE9balo como lo ve tu cliente"), React.createElement("p", {
-    className: "cns-body-large",
-    style: {
-      margin: '24px 0 0',
-      maxWidth: '46ch',
+      margin: '28px 0 0',
+      maxWidth: '52ch',
       color: 'var(--text-secondary)',
-      fontSize: 'clamp(16px,1.6vw,18px)',
       textWrap: 'pretty'
     }
-  }, "Ninguna casilla viene pre-marcada, cada finalidad se acepta por separado, y al guardar se emite el registro de evidencia.")), React.createElement(ConsentWidget, null)))), React.createElement(Shell, {
-    pad: `clamp(48px,7vw,100px) ${GUTTER} 0`
+  }, "En el formulario de al lado ninguna casilla viene marcada, cada permiso se acepta por separado y, al guardar, la decisi\xF3n queda en el ledger."), React.createElement(DemoLink, {
+    navigate: navigate,
+    step: "captura"
+  }, "Ver c\xF3mo llega a la consola")), React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement(MailToast, {
+    mail: mail
+  }), React.createElement(MailNote, {
+    mail: mail
+  }), React.createElement(AppFrame, {
+    interactive: true,
+    fluid: true,
+    scene: "titular-widget",
+    label: "El formulario de una tienda de ejemplo con el widget de Consenty",
+    address: SHOP_HOST + '/cotizar',
+    naturalHeight: 680,
+    onMessage: onWidgetMessage
+  })))), React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER} 0`
+  }, React.createElement("div", {
+    id: "panel"
   }, React.createElement(MonoLabel, null, "Componente 2"), React.createElement("h2", {
     className: "cns-section-heading",
     style: {
@@ -1293,12 +1887,11 @@ function ModulosScreen({
       fontSize: 'clamp(16px,1.6vw,18px)',
       textWrap: 'pretty'
     }
-  }, "El Delegado de Protecci\xF3n de Datos o el equipo legal cuenta con un centro de mando para supervisar todos los consentimientos existentes, recibir alertas de cambios y atender solicitudes BARCOP de los titulares."), React.createElement(AgentConsoleCard, {
-    title: "Panel DPO \xB7 Solicitudes BARCOP",
-    status: "En plazo",
-    integrations: INTEGRATIONS,
-    prompt: "Exportar expediente de evidencia \u2014 titular 12.345.678-9",
-    response: "Expediente listo: 14 consentimientos, 3 revocaciones, 1 solicitud de portabilidad. Trazabilidad completa desde marzo 2026."
+  }, "El Delegado de Protecci\xF3n de Datos o el equipo legal cuenta con un centro de mando para supervisar todos los consentimientos existentes, recibir alertas de cambios y atender solicitudes BARCOP de los titulares."), React.createElement(AppFrame, {
+    scene: "empresa-panel",
+    label: "El panel de control de Consenty con indicadores y actividad reciente",
+    address: APP_HOST + '/dashboard/tienda-alba',
+    height: 760
   }), React.createElement("div", {
     style: {
       display: 'grid',
@@ -1312,14 +1905,14 @@ function ModulosScreen({
       size: 28
     }),
     title: "Supervisi\xF3n continua",
-    body: "Estado de cada consentimiento y revocaci\xF3n, por canal, finalidad y versi\xF3n de t\xE9rminos."
+    body: "Estado de cada consentimiento y revocaci\xF3n, por titular, permiso y versi\xF3n de t\xE9rminos."
   }), React.createElement(CapabilityCard, {
     icon: React.createElement(Icon, {
       name: "clock",
       size: 28
     }),
     title: "Alertas y plazos",
-    body: "Los 30 d\xEDas legales para responder BARCOP, con avisos antes del vencimiento y responsable asignado."
+    body: "Los 30 d\xEDas legales para responder una solicitud, con avisos antes del vencimiento."
   }), React.createElement(CapabilityCard, {
     icon: React.createElement(Icon, {
       name: "file-text",
@@ -1327,8 +1920,10 @@ function ModulosScreen({
     }),
     title: "Expedientes exportables",
     body: "Evidencia t\xE9cnica inalterable, lista para presentar ante la APDP o una auditor\xEDa interna."
-  }))), React.createElement(Shell, {
-    pad: `clamp(48px,7vw,100px) ${GUTTER} clamp(64px,9vw,120px)`
+  })))), React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER} clamp(64px,9vw,120px)`
+  }, React.createElement("div", {
+    id: "portal"
   }, React.createElement(MonoLabel, null, "Componente 3"), React.createElement("h2", {
     className: "cns-section-heading",
     style: {
@@ -1348,35 +1943,49 @@ function ModulosScreen({
       textWrap: 'pretty'
     }
   }, "La Ley 21.719 obliga a facilitar el ejercicio de derechos sin tr\xE1mites burocr\xE1ticos. Con su cuenta activa, tus clientes acceden directamente al portal y ejercen sus derechos de forma aut\xF3noma y transparente."), React.createElement("div", {
-    className: "cns-barcop-grid",
     style: {
       display: 'grid',
-      gap: 1,
-      background: 'var(--border-utility)',
-      border: '1px solid var(--border-utility)',
-      borderRadius: 'var(--radius-lg)',
-      overflow: 'hidden'
+      gap: 'clamp(20px,2.4vw,32px)',
+      alignItems: 'start',
+      gridTemplateColumns: mobile ? '1fr' : '1fr 1fr'
     }
-  }, BARCOP.map(([letter, title, body]) => React.createElement("div", {
-    key: letter,
+  }, React.createElement("div", {
     style: {
-      background: 'var(--surface-card)',
-      padding: 'clamp(24px,3vw,32px)'
+      minWidth: 0
     }
-  }, React.createElement(MonoLabel, {
-    tone: "indigo"
-  }, letter), React.createElement("h3", {
-    className: "cns-feature-heading",
-    style: {
-      margin: '12px 0 0'
-    }
-  }, title), React.createElement("p", {
+  }, React.createElement(AppFrame, {
+    fluid: true,
+    scene: "titular-portal",
+    label: "El portal del titular con los permisos que otorg\xF3",
+    address: APP_HOST + '/portal/consentimientos',
+    naturalHeight: 640
+  }), React.createElement("p", {
     className: "cns-body",
     style: {
-      margin: '8px 0 0',
+      margin: '14px 0 0',
       color: 'var(--text-secondary)'
     }
-  }, body))))));
+  }, "Lo que autoriz\xF3, hasta cu\xE1ndo, y un bot\xF3n para revocarlo.")), React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement(AppFrame, {
+    fluid: true,
+    scene: "titular-solicitud",
+    label: "El formulario del portal para ejercer un derecho",
+    address: APP_HOST + '/portal/solicitudes/nueva',
+    naturalHeight: 640,
+    chrome: "content"
+  }), React.createElement("p", {
+    className: "cns-body",
+    style: {
+      margin: '14px 0 0',
+      color: 'var(--text-secondary)'
+    }
+  }, "Los derechos que puede ejercer, explicados sin jerga, con folio y acuse al enviar."))), React.createElement(DemoLink, {
+    navigate: navigate,
+    step: "portal"
+  }, "Usar el portal en la demo"))));
 }
 const RISK = {
   ok: {
@@ -1566,7 +2175,9 @@ function ChecklistCard({
   }, "Exposici\xF3n m\xE1xima estimada: ", React.createElement("strong", null, risk.exposure)))));
 }
 function NormativaScreen({
-  daysLeft
+  daysLeft,
+  navigate,
+  mobile
 }) {
   return React.createElement("main", {
     id: "contenido"
@@ -1680,6 +2291,23 @@ function NormativaScreen({
       color: 'var(--text-secondary)'
     }
   }, body))))), React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER} 0`
+  }, React.createElement(ProductSplit, {
+    mobile: mobile,
+    heading: "El plazo de 30 d\xEDas, dentro del producto",
+    body: "Cada solicitud de derechos entra con folio, acuse de recibo y fecha de vencimiento. La consola avisa antes de que venza, y la respuesta emite el documento que se le entrega al titular.",
+    frame: React.createElement(AppFrame, {
+      scene: "empresa-solicitud-detalle",
+      chrome: "content",
+      width: 1040,
+      height: 720,
+      label: "Una solicitud de derechos en la consola, con su vencimiento y la respuesta",
+      address: APP_HOST + '/dashboard/tienda-alba/rights-requests'
+    })
+  }, React.createElement(DemoLink, {
+    navigate: navigate,
+    step: "derechos"
+  }, "Presentar y responder una solicitud en la demo"))), React.createElement(Shell, {
     pad: `clamp(64px,9vw,120px) ${GUTTER}`
   }, React.createElement("h2", {
     className: "cns-section-heading",
@@ -1697,7 +2325,9 @@ function NormativaScreen({
     rows: NORMATIVA_ROWS
   }))));
 }
-function RecursosScreen() {
+function RecursosScreen({
+  navigate
+}) {
   const [filter, setFilter] = useState('Todo');
   const rows = useMemo(() => filter === 'Todo' ? RECURSOS : RECURSOS.filter(r => r.topics.indexOf(filter) !== -1), [filter]);
   return React.createElement("main", {
@@ -1746,8 +2376,53 @@ function RecursosScreen() {
     }
   }, React.createElement(ResearchTable, {
     rows: rows
-  }))));
+  }))), React.createElement(DarkFeatureBand, {
+    tone: "slate",
+    eyebrow: "Del papel al producto",
+    heading: bandHeading("Lo que explican las guías, funcionando"),
+    body: "Captura un consentimiento, rev\xEDsalo en el ledger y responde una solicitud de derechos en la demo: es el producto real, con datos de ejemplo, en tu navegador.",
+    actions: React.createElement(Fragment, null, React.createElement(Button, {
+      variant: "primary-inverse",
+      onClick: () => navigate('demo')
+    }, "Probar la demo"), React.createElement("a", _extends({
+      "data-plain": true
+    }, navLinkProps('demo', navigate, BOOKING), {
+      style: {
+        color: 'var(--color-on-dark)',
+        fontSize: 16
+      }
+    }), "Agendar una reuni\xF3n"))
+  }));
 }
+const ENTREGABLES = [{
+  key: 'semana-2',
+  icon: 'list-checks',
+  short: 'Semana 2',
+  side: 'Semana 2 · Configuración',
+  title: 'Tus datos y permisos, definidos',
+  body: 'Qué datos tratas, con qué base legal y por cuánto tiempo, con el texto que legal aprobó.',
+  scene: 'empresa-datos',
+  address: APP_HOST + '/dashboard/tienda-alba/data-types'
+}, {
+  key: 'semana-3',
+  icon: 'code-xml',
+  short: 'Semana 3',
+  side: 'Semana 3 · Integración',
+  title: 'El widget instalado en tu formulario',
+  body: 'Un fragmento de código por formulario. Cada envío llega con un comprobante que tu servidor valida.',
+  scene: 'empresa-integracion-instalacion',
+  address: APP_HOST + '/dashboard/tienda-alba/integrations'
+}, {
+  key: 'semana-4',
+  icon: 'door-open',
+  short: 'Semana 4',
+  side: 'Semana 4 · Despliegue',
+  title: 'El portal abierto a tus titulares',
+  body: 'Cada persona entra con su RUT y correo, ve lo que autorizó y ejerce sus derechos sin intermediarios.',
+  scene: 'titular-portal',
+  address: APP_HOST + '/portal/consentimientos',
+  fluid: true
+}];
 function ImplementacionScreen({
   navigate,
   mobile
@@ -1814,10 +2489,38 @@ function ImplementacionScreen({
       fontSize: 14,
       color: 'var(--text-secondary)'
     }
-  }, deliverable))))), React.createElement(DarkFeatureBand, {
+  }, deliverable))))), React.createElement(Shell, {
+    pad: `clamp(64px,9vw,120px) ${GUTTER} 0`
+  }, React.createElement("h2", {
+    className: "cns-section-heading",
+    style: {
+      margin: 0,
+      maxWidth: '22ch',
+      fontSize: 'clamp(30px,4.4vw,48px)',
+      letterSpacing: '-0.025em',
+      textWrap: 'balance'
+    }
+  }, "Lo que queda funcionando cada semana"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '20px 0 clamp(32px,5vw,56px)',
+      maxWidth: '58ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.6vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Los entregables no son documentos: son pantallas del producto ya configuradas para tu empresa."), React.createElement(ScreenTour, {
+    items: ENTREGABLES,
+    name: "Entregables por semana",
+    mobile: mobile,
+    cta: () => React.createElement(Button, {
+      variant: "secondary",
+      onClick: () => navigate('demo')
+    }, "Probar la demo")
+  })), React.createElement(DarkFeatureBand, {
     tone: "indigo",
     eyebrow: "Soporte",
-    heading: "No necesitas un \xE1rea de TI para partir",
+    heading: bandHeading("No necesitas un área de TI para partir"),
     body: "Widgets listos para pegar, APIs livianas y acompa\xF1amiento durante las cuatro semanas. Si tu equipo es peque\xF1o, nosotros hacemos la integraci\xF3n.",
     actions: bandActions,
     style: {
@@ -1825,11 +2528,551 @@ function ImplementacionScreen({
     }
   }));
 }
-function DemoScreen() {
+const CONSOLE_PATH = '/dashboard/tienda-alba';
+const TOUR = [{
+  key: 'captura',
+  label: 'Capturar',
+  side: 'cliente',
+  title: 'Pide el consentimiento en un formulario',
+  todo: ['Pulsa «Completar con datos de ejemplo» y luego «Completar ahora».', 'Pide el código, escríbelo y acepta que Consenty guarde tu identidad.', 'Marca los permisos que quieras y guarda tus preferencias.'],
+  client: 'titular-widget',
+  company: CONSOLE_PATH + '/ledger',
+  doneBy: ['cliente', 'consents-saved'],
+  done: 'Guardado. Mira la consola: las decisiones ya están en el ledger.'
+}, {
+  key: 'evidencia',
+  label: 'Evidencia',
+  side: 'empresa',
+  requires: 'ana-granted',
+  title: 'Comprueba la prueba en el ledger',
+  todo: ['Las filas de arriba son las decisiones recién guardadas, con su sello de tiempo y su hash.', 'Pulsa «Verificar integridad» para recalcular toda la cadena.'],
+  client: 'titular-widget',
+  company: CONSOLE_PATH + '/ledger',
+  doneBy: ['empresa', 'ledger-verified'],
+  done: 'Cadena verificada. Si alguien alterara una fila, aquí aparecería rota.'
+}, {
+  key: 'portal',
+  label: 'Revocar',
+  side: 'cliente',
+  requires: 'ana-granted',
+  title: 'Revoca un permiso desde el portal',
+  todo: ['Este es el portal que recibe cada titular, con todo lo que autorizó.', 'Pulsa «Revocar» en «Enviar promociones» y luego «Guardar consentimientos».'],
+  client: 'titular-portal',
+  company: CONSOLE_PATH + '/alerts',
+  doneBy: ['cliente', 'consents-saved'],
+  done: 'Revocado. La empresa recibió la alerta y el ledger sumó la revocación.'
+}, {
+  key: 'derechos',
+  label: 'Solicitar',
+  side: 'cliente',
+  requires: 'ana-granted',
+  title: 'Ejerce un derecho como titular',
+  todo: ['Elige un derecho, por ejemplo Acceso, y sigue los pasos del formulario.', 'Al confirmar recibes un folio y un acuse de recibo.'],
+  client: 'titular-solicitud',
+  company: CONSOLE_PATH + '/rights-requests',
+  doneBy: ['cliente', 'rights-request-created'],
+  done: 'Solicitud presentada. Ya está en la bandeja de la empresa, con su plazo de 30 días.'
+}, {
+  key: 'respuesta',
+  label: 'Responder',
+  side: 'empresa',
+  requires: 'ana-granted,ana-request',
+  title: 'Responde la solicitud dentro del plazo',
+  todo: ['Abre la solicitud más reciente: es la primera de la lista.', 'Escribe el fundamento de la respuesta y pulsa «Emitir documento y guardar».'],
+  client: 'titular-solicitudes',
+  company: CONSOLE_PATH + '/rights-requests',
+  doneBy: ['empresa', 'rights-request-updated'],
+  done: 'Respondida. El titular ya ve la resolución y su documento en el portal.'
+}];
+const CLIENT_ADDRESS = {
+  'titular-widget': SHOP_HOST + '/cotizar',
+  'titular-portal': APP_HOST + '/portal/consentimientos',
+  'titular-solicitud': APP_HOST + '/portal/solicitudes/nueva',
+  'titular-solicitudes': APP_HOST + '/portal/solicitudes'
+};
+const COMPANY_SCENE = {
+  [CONSOLE_PATH + '/ledger']: 'empresa-ledger',
+  [CONSOLE_PATH + '/alerts']: 'empresa-alertas',
+  [CONSOLE_PATH + '/rights-requests']: 'empresa-solicitudes'
+};
+function tourIndex(search) {
+  const wanted = new URLSearchParams(search).get('paso');
+  const found = TOUR.findIndex(step => step.key === wanted);
+  return found === -1 ? 0 : found;
+}
+function ProductDemo({
+  place,
+  mobile
+}) {
+  const [run, setRun] = useState(() => ({
+    id: 0,
+    start: tourIndex(place.search)
+  }));
+  const [index, setIndex] = useState(run.start);
+  const [done, setDone] = useState({});
+  const [mail, setMail] = useState(null);
+  const [side, setSide] = useState(TOUR[run.start].side);
+  const [companyPath, setCompanyPath] = useState(TOUR[run.start].company);
+  const companyApi = useRef(null);
+  const firstMount = useRef(true);
+  const viewportHeight = useViewportHeight();
+  const step = TOUR[index];
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  useEffect(() => {
+    const wanted = tourIndex(place.search);
+    if (new URLSearchParams(place.search).has('paso')) goTo(wanted);
+  }, [place.search, place.visit]);
+  function goTo(next) {
+    setIndex(next);
+    setSide(TOUR[next].side);
+    setMail(null);
+    if (TOUR[next].company !== companyPath) {
+      setCompanyPath(TOUR[next].company);
+      if (companyApi.current) companyApi.current.send('navigate', {
+        path: TOUR[next].company
+      });
+    }
+  }
+  useEffect(() => {
+    firstMount.current = false;
+  }, [run.id]);
+  function restart() {
+    firstMount.current = true;
+    setRun(current => ({
+      id: current.id + 1,
+      start: 0
+    }));
+    setIndex(0);
+    setDone({});
+    setMail(null);
+    setSide(TOUR[0].side);
+    setCompanyPath(TOUR[0].company);
+  }
+  const onEvent = from => (type, payload) => {
+    if (type === 'otp-sent') setMail(payload);
+    if (type === 'otp-verified') setMail(null);
+    const current = stepRef.current;
+    if (current.doneBy[0] === from && current.doneBy[1] === type) {
+      setDone(state => ({
+        ...state,
+        [current.key]: true
+      }));
+    }
+  };
+  const isDone = Boolean(done[step.key]);
+  const last = index === TOUR.length - 1;
+  const fresh = run.start === 0;
+  const frameHeight = mobile ? Math.max(460, Math.min(640, viewportHeight - 300)) : Math.max(520, Math.min(760, viewportHeight - 250));
+  const mailNote = mail && React.createElement("div", {
+    style: {
+      background: 'var(--surface-wash-indigo)',
+      borderRadius: 'var(--radius-md)',
+      padding: '10px 14px',
+      fontSize: 14,
+      lineHeight: 1.4
+    }
+  }, React.createElement("span", {
+    style: {
+      color: 'var(--text-secondary)'
+    }
+  }, "Correo simulado para ", mail.email, ": "), "tu c\xF3digo es", ' ', React.createElement("strong", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      letterSpacing: '.1em'
+    }
+  }, mail.code));
+  const doneNote = isDone && React.createElement("div", {
+    role: "status",
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '10px 16px',
+      borderLeft: '2px solid var(--color-success)',
+      paddingLeft: 14,
+      fontSize: 15,
+      lineHeight: 1.4
+    }
+  }, React.createElement("span", {
+    style: {
+      flex: '1 1 260px',
+      textWrap: 'pretty'
+    }
+  }, step.done, last ? ' Ese es el recorrido completo.' : ''), !last && React.createElement(Button, {
+    variant: "primary",
+    size: "sm",
+    onClick: () => goTo(index + 1)
+  }, "Siguiente: ", TOUR[index + 1].label.toLowerCase()));
+  const client = React.createElement(AppFrame, {
+    key: `cliente-${run.id}-${step.client}`,
+    interactive: true,
+    fluid: true,
+    eager: true,
+    frameId: "cliente",
+    scene: step.client,
+    address: CLIENT_ADDRESS[step.client],
+    label: "Lo que ve el cliente de la tienda de ejemplo",
+    reset: fresh && firstMount.current && index === 0,
+    requires: fresh ? undefined : step.requires,
+    fitHeight: frameHeight,
+    onMessage: onEvent('cliente')
+  });
+  const company = React.createElement(AppFrame, {
+    key: `empresa-${run.id}`,
+    interactive: true,
+    eager: true,
+    frameId: "empresa",
+    apiRef: companyApi,
+    scene: COMPANY_SCENE[TOUR[run.start].company],
+    address: APP_HOST + companyPath,
+    label: "La consola de Consenty de la empresa de ejemplo",
+    requires: fresh ? undefined : TOUR[run.start].requires,
+    width: 1180,
+    fitHeight: frameHeight,
+    onMessage: onEvent('empresa')
+  });
+  return React.createElement("div", null, React.createElement(MailToast, {
+    mail: mail
+  }), React.createElement("div", {
+    role: "tablist",
+    "aria-label": "Pasos de la demo",
+    className: "cns-flow-tabs cns-flow-tabs--row"
+  }, TOUR.map((item, i) => React.createElement("button", {
+    key: item.key,
+    role: "tab",
+    type: "button",
+    className: "cns-flow-tab",
+    id: 'demo-tab-' + item.key,
+    "aria-selected": i === index,
+    "aria-controls": "demo-guia",
+    tabIndex: i === index ? 0 : -1,
+    onClick: () => goTo(i),
+    onKeyDown: tabKeyHandler(TOUR.length, index, goTo)
+  }, React.createElement("span", {
+    className: "cns-flow-tab__title",
+    style: done[item.key] ? {
+      color: 'var(--color-success)'
+    } : undefined
+  }, item.label, done[item.key] && React.createElement("span", {
+    className: "cns-visually-hidden"
+  }, " (hecho)"))))), React.createElement("div", {
+    id: "demo-guia",
+    role: "tabpanel",
+    "aria-labelledby": 'demo-tab-' + step.key,
+    style: {
+      padding: 'clamp(18px,2.2vw,28px) 0'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: 'var(--text-tertiary)'
+    }
+  }, step.side === 'cliente' ? 'Ahora eres el cliente' : 'Ahora eres la empresa'), React.createElement("h2", {
+    className: "cns-feature-heading",
+    style: {
+      margin: '4px 0 0',
+      fontSize: 'clamp(20px,2vw,26px)',
+      textWrap: 'balance'
+    }
+  }, step.title), React.createElement("ol", {
+    style: {
+      margin: '12px 0 0',
+      paddingLeft: 20,
+      display: 'grid',
+      gap: 4,
+      fontSize: 15,
+      lineHeight: 1.5,
+      color: 'var(--text-secondary)',
+      maxWidth: '80ch'
+    }
+  }, step.todo.map(line => React.createElement("li", {
+    key: line
+  }, line)))), mobile && React.createElement("div", {
+    role: "tablist",
+    "aria-label": "Lado de la demo",
+    className: "cns-flow-tabs cns-flow-tabs--row",
+    style: {
+      marginBottom: 16
+    }
+  }, [['cliente', 'Tu cliente'], ['empresa', 'Tu empresa']].map(([key, label]) => React.createElement("button", {
+    key: key,
+    role: "tab",
+    type: "button",
+    className: "cns-flow-tab",
+    "aria-selected": side === key,
+    onClick: () => setSide(key)
+  }, React.createElement("span", {
+    className: "cns-flow-tab__title"
+  }, label)))), mobile ? React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10,
+      marginBottom: 12
+    }
+  }, mailNote, doneNote) : React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 20,
+      alignItems: 'center',
+      minHeight: 52,
+      marginBottom: 10,
+      gridTemplateColumns: 'minmax(360px,440px) minmax(0,1fr)'
+    }
+  }, React.createElement("div", null, mailNote || React.createElement("span", {
+    style: {
+      fontSize: 14,
+      color: 'var(--text-secondary)'
+    }
+  }, "Tu cliente")), React.createElement("div", null, doneNote || React.createElement("span", {
+    style: {
+      fontSize: 14,
+      color: 'var(--text-secondary)'
+    }
+  }, "Tu empresa"))), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 20,
+      alignItems: 'start',
+      gridTemplateColumns: mobile ? '1fr' : 'minmax(360px,440px) minmax(0,1fr)'
+    }
+  }, React.createElement("div", {
+    style: {
+      minWidth: 0,
+      display: mobile && side !== 'cliente' ? 'none' : 'block'
+    }
+  }, client), React.createElement("div", {
+    style: {
+      minWidth: 0,
+      display: mobile && side !== 'empresa' ? 'none' : 'block'
+    }
+  }, company)), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '12px 24px',
+      marginTop: 20,
+      fontSize: 14,
+      color: 'var(--text-tertiary)'
+    }
+  }, React.createElement("span", {
+    style: {
+      maxWidth: '70ch',
+      textWrap: 'pretty'
+    }
+  }, "Empresa, personas y datos son ficticios. La aplicaci\xF3n corre en tu navegador: lo que escribas no se env\xEDa ni se guarda en ning\xFAn servidor."), React.createElement("button", {
+    type: "button",
+    onClick: restart,
+    style: {
+      background: 'none',
+      border: 0,
+      padding: 0,
+      cursor: 'pointer',
+      fontSize: 14,
+      color: 'var(--color-ink)',
+      textDecoration: 'underline',
+      textUnderlineOffset: 3
+    }
+  }, "Reiniciar la demo")));
+}
+const BOOKING_ERRORS = {
+  rate: 'Recibimos varias solicitudes desde tu red. Inténtalo de nuevo en una hora.',
+  invalid: 'Revisa los datos marcados e inténtalo de nuevo.',
+  failed: 'No pudimos enviar tu solicitud. Inténtalo de nuevo en unos minutos.'
+};
+function bookingFieldError(field, value) {
+  const text = value.trim();
+  if (field.required && !text) return 'Completa este campo.';
+  if (field.type === 'email' && text && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
+    return 'Escribe un correo válido.';
+  }
+  return null;
+}
+function BookingForm({
+  onSent
+}) {
+  const [values, setValues] = useState(() => DEMO_FIELDS.reduce((all, field) => ({
+    ...all,
+    [field.name]: ''
+  }), {}));
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState('idle');
+  const [problem, setProblem] = useState(null);
+  const trapRef = useRef(null);
+  const sending = status === 'sending';
+  const setValue = name => e => {
+    const value = e.target.value;
+    setValues(current => ({
+      ...current,
+      [name]: value
+    }));
+    if (errors[name]) setErrors(current => ({
+      ...current,
+      [name]: null
+    }));
+  };
+  const submit = async e => {
+    e.preventDefault();
+    if (sending) return;
+    const found = {};
+    for (const field of DEMO_FIELDS) {
+      const message = bookingFieldError(field, values[field.name]);
+      if (message) found[field.name] = message;
+    }
+    setErrors(found);
+    const first = DEMO_FIELDS.find(field => found[field.name]);
+    if (first) {
+      setProblem(BOOKING_ERRORS.invalid);
+      const input = e.currentTarget.elements.namedItem(first.name);
+      if (input && input.focus) input.focus();
+      return;
+    }
+    setStatus('sending');
+    setProblem(null);
+    try {
+      const response = await fetch(API_ORIGIN + '/api/public/demo-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...values,
+          website: trapRef.current ? trapRef.current.value : ''
+        })
+      });
+      if (response.ok) {
+        onSent();
+        return;
+      }
+      setProblem(response.status === 429 ? BOOKING_ERRORS.rate : response.status === 422 ? BOOKING_ERRORS.invalid : BOOKING_ERRORS.failed);
+    } catch (cause) {
+      setProblem(BOOKING_ERRORS.failed);
+    }
+    setStatus('idle');
+  };
+  return React.createElement("form", {
+    onSubmit: submit,
+    noValidate: true,
+    style: {
+      background: 'var(--color-canvas)',
+      color: 'var(--color-ink)',
+      borderRadius: 'var(--radius-lg)',
+      padding: 'clamp(24px,3vw,var(--space-xxl))',
+      display: 'grid',
+      gap: 'var(--space-xl)',
+      fontFamily: 'var(--font-ui)'
+    }
+  }, React.createElement("h3", {
+    className: "cns-card-heading",
+    style: {
+      margin: 0,
+      fontWeight: 400
+    }
+  }, "Cu\xE9ntanos de tu operaci\xF3n"), React.createElement("p", {
+    style: {
+      margin: 0,
+      fontSize: 'var(--text-body-size)',
+      color: 'var(--text-secondary)'
+    }
+  }, "Te contactamos dentro de un d\xEDa h\xE1bil para coordinar la sesi\xF3n."), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'var(--space-lg)',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,220px),1fr))'
+    }
+  }, DEMO_FIELDS.map(field => React.createElement(Input, {
+    key: field.name,
+    name: field.name,
+    label: field.label,
+    type: field.type,
+    as: field.as,
+    required: field.required,
+    "aria-required": field.required ? 'true' : undefined,
+    "aria-invalid": errors[field.name] ? 'true' : undefined,
+    placeholder: field.placeholder,
+    maxLength: field.max,
+    autoComplete: field.autoComplete,
+    value: values[field.name],
+    onChange: setValue(field.name),
+    disabled: sending,
+    error: errors[field.name] || undefined,
+    style: field.full || field.as === 'textarea' ? {
+      gridColumn: '1 / -1'
+    } : undefined
+  }))), React.createElement("div", {
+    "aria-hidden": "true",
+    className: "cns-visually-hidden"
+  }, React.createElement("label", null, "Sitio web", React.createElement("input", {
+    ref: trapRef,
+    type: "text",
+    name: "website",
+    tabIndex: -1,
+    autoComplete: "off",
+    defaultValue: ""
+  }))), problem && React.createElement("p", {
+    role: "alert",
+    style: {
+      margin: 0,
+      fontSize: 15,
+      color: 'var(--color-error)'
+    }
+  }, problem), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '12px 20px'
+    }
+  }, React.createElement(Button, {
+    variant: "primary",
+    type: "submit",
+    disabled: sending
+  }, sending ? 'Enviando…' : 'Agendar demo comercial'), React.createElement("span", {
+    style: {
+      flex: '1 1 200px',
+      fontSize: 13,
+      color: 'var(--text-secondary)',
+      textWrap: 'pretty'
+    }
+  }, "Tus datos llegan al equipo de Consenty para coordinar la reuni\xF3n.")));
+}
+function DemoScreen({
+  place,
+  mobile
+}) {
   const [sent, setSent] = useState(false);
   return React.createElement("main", {
     id: "contenido"
-  }, React.createElement("div", {
+  }, React.createElement(Shell, {
+    pad: `clamp(28px,4vw,56px) ${GUTTER} 0`
+  }, React.createElement(MonoLabel, {
+    tone: "indigo"
+  }, "Demo interactiva"), React.createElement("h1", {
+    className: "cns-section-heading",
+    style: {
+      margin: '14px 0 0',
+      fontSize: 'clamp(30px,4.2vw,52px)',
+      letterSpacing: '-0.03em',
+      textWrap: 'balance'
+    }
+  }, "Recorre Consenty de punta a punta"), React.createElement("p", {
+    className: "cns-body-large",
+    style: {
+      margin: '14px 0 0',
+      maxWidth: '84ch',
+      color: 'var(--text-secondary)',
+      fontSize: 'clamp(16px,1.5vw,18px)',
+      textWrap: 'pretty'
+    }
+  }, "Haz de cliente y de empresa a la vez: el sitio de una tienda de ejemplo con el widget de Consenty, y la consola que usa su equipo. Es el producto real con datos ficticios.")), React.createElement(Shell, {
+    pad: `clamp(20px,3vw,32px) ${GUTTER} clamp(64px,9vw,120px)`
+  }, React.createElement(ProductDemo, {
+    place: place,
+    mobile: mobile
+  })), React.createElement("div", {
+    id: "agendar",
     style: {
       background: 'var(--surface-band-indigo)',
       color: 'var(--color-on-dark)'
@@ -1849,7 +3092,7 @@ function DemoScreen() {
     }
   }, React.createElement(MonoLabel, {
     tone: "soft"
-  }, "Agendar demo"), React.createElement("h1", {
+  }, "Agendar demo"), React.createElement("h2", {
     className: "cns-section-display",
     style: {
       margin: '20px 0 0',
@@ -1875,7 +3118,7 @@ function DemoScreen() {
       fontSize: 16,
       color: 'rgba(255,255,255,.72)'
     }
-  }, ['Revisión de tus canales de captura actuales', 'Demostración del panel DPO y del portal de titulares', 'Plan de 4 semanas con responsables y entregables'].map(line => React.createElement("div", {
+  }, ['Revisión de tus canales de captura actuales', 'La misma demo, con tus formularios y tus permisos', 'Plan de 4 semanas con responsables y entregables'].map(line => React.createElement("div", {
     key: line,
     style: {
       display: 'flex',
@@ -1906,7 +3149,7 @@ function DemoScreen() {
     }
   }, React.createElement(MonoLabel, {
     tone: "soft"
-  }, "Solicitud recibida"), React.createElement("h2", {
+  }, "Solicitud recibida"), React.createElement("h3", {
     className: "cns-card-heading",
     style: {
       margin: '16px 0 0',
@@ -1918,12 +3161,8 @@ function DemoScreen() {
       margin: '12px 0 0',
       color: 'rgba(255,255,255,.72)'
     }
-  }, "Te contactamos dentro de un d\xEDa h\xE1bil para coordinar la sesi\xF3n de 30 minutos.")) : React.createElement(ContactFormCard, {
-    heading: "Cu\xE9ntanos de tu operaci\xF3n",
-    body: "Te contactamos dentro de un d\xEDa h\xE1bil para coordinar la sesi\xF3n.",
-    fields: DEMO_FIELDS,
-    submitLabel: "Agendar demo comercial",
-    onSubmit: () => setSent(true)
+  }, "Te contactamos dentro de un d\xEDa h\xE1bil para coordinar la sesi\xF3n de 30 minutos.")) : React.createElement(BookingForm, {
+    onSent: () => setSent(true)
   }))))));
 }
 const FLUJO_STEPS = [['El titular escribe su correo', 'Paso 1'], ['Desafío de seguridad — invisible, sin clics', 'Paso 2'], ['Se envía el código de verificación', 'Paso 3']];
@@ -1959,6 +3198,7 @@ function CausaRow({
   tagTone = 'muted',
   titulo,
   cuerpo,
+  aviso,
   children
 }) {
   return React.createElement("div", {
@@ -1983,6 +3223,7 @@ function CausaRow({
     style: {
       display: 'flex',
       flexWrap: 'wrap',
+      alignItems: 'flex-start',
       gap: 'clamp(24px,4vw,64px)'
     }
   }, React.createElement("div", {
@@ -2004,7 +3245,24 @@ function CausaRow({
       maxWidth: '48ch',
       color: 'var(--text-secondary)'
     }
-  }, cuerpo)), children));
+  }, cuerpo), React.createElement("div", {
+    style: {
+      marginTop: 24,
+      maxWidth: 470
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 14,
+      color: 'var(--text-secondary)',
+      marginBottom: 10
+    }
+  }, "El aviso que muestra el formulario en este caso:"), React.createElement(AppFrame, {
+    fluid: true,
+    autoHeight: true,
+    scene: aviso,
+    naturalHeight: 340,
+    label: 'Aviso del widget de Consenty: ' + titulo
+  }))), children));
 }
 function ConnectivityCheck() {
   const [check, setCheck] = useState('');
@@ -2173,7 +3431,7 @@ function VerificacionScreen() {
   }, React.createElement(DarkFeatureBand, {
     tone: "slate",
     eyebrow: "Por qu\xE9 existe",
-    heading: "El registro solo prueba algo si la decisi\xF3n es atribuible",
+    heading: bandHeading("El registro solo prueba algo si la decisión es atribuible"),
     body: "Sin este control, cualquiera podr\xEDa generar consentimientos masivos a nombre de terceros y contaminar el registro que tu empresa despu\xE9s tiene que exhibir. La verificaci\xF3n separa a las personas de los scripts antes de que se emita el c\xF3digo."
   }, React.createElement("div", {
     style: {
@@ -2271,6 +3529,7 @@ function VerificacionScreen() {
   }, React.createElement(CausaRow, {
     numero: "Causa 01 \xB7 la m\xE1s com\xFAn",
     tag: "Puedes resolverlo t\xFA",
+    aviso: "componente-verificacion-bloqueada",
     titulo: "Un bloqueador o una VPN est\xE1 filtrando el desaf\xEDo",
     cuerpo: "Extensiones como bloqueadores de anuncios, antirrastreo o una VPN pueden cortar la conexi\xF3n con el servicio que ejecuta el control."
   }, React.createElement("div", {
@@ -2303,6 +3562,7 @@ function VerificacionScreen() {
   }, "challenges.cloudflare.com"), " a las excepciones."), React.createElement("li", null, "Vuelve al formulario y reintenta.")), React.createElement(CopyDomainButton, null))), React.createElement(CausaRow, {
     numero: "Causa 02",
     tag: "Puedes resolverlo t\xFA",
+    aviso: "componente-verificacion-sin-respuesta",
     titulo: "El desaf\xEDo no respondi\xF3 a tiempo",
     cuerpo: "Una conexi\xF3n intermitente o una pesta\xF1a en segundo plano pueden dejar el control a medio camino."
   }, React.createElement("div", {
@@ -2328,6 +3588,7 @@ function VerificacionScreen() {
     numero: "Causa 03",
     tag: "No depende de ti",
     tagTone: "warning",
+    aviso: "componente-verificacion-restringida",
     titulo: "El sitio incrusta el formulario de forma restringida",
     cuerpo: "El formulario est\xE1 dentro de un marco con permisos limitados y el control no puede ejecutarse ah\xED."
   }, React.createElement("div", {
@@ -2347,40 +3608,51 @@ function VerificacionScreen() {
   }, "Desde tu navegador no hay nada que puedas cambiar. Avisa a la empresa due\xF1a del formulario: tiene que ajustar c\xF3mo lo incrusta en su sitio.")))), React.createElement(ConnectivityCheck, null)))), React.createElement(DarkFeatureBand, {
     tone: "indigo",
     eyebrow: "Si nada funciona",
-    heading: "Tus derechos siguen vigentes",
+    heading: bandHeading("Tus derechos siguen vigentes"),
     body: "Contacta a la empresa due\xF1a del formulario y cu\xE9ntale qu\xE9 pas\xF3: puede completar tu solicitud por otra v\xEDa. Como titular, puedes ejercer tus derechos igualmente por los canales que esa empresa publique \u2014 el problema t\xE9cnico no los suspende."
   }));
 }
 function App() {
-  const [route, navigate] = useRoute();
+  const [place, navigate] = useRoute();
+  const route = place.route;
   const width = useViewportWidth();
   const mobile = width < 1080;
-  const narrow = width < 700;
+  const onLinkClick = useMemo(() => routeLinkHandler(navigate), [navigate]);
   const daysLeft = useMemo(() => Math.max(0, Math.ceil((DEADLINE - new Date()) / 86400000)), []);
   const screens = {
     inicio: React.createElement(HomeScreen, {
       navigate: navigate,
-      daysLeft: daysLeft
+      daysLeft: daysLeft,
+      mobile: mobile
     }),
     plataforma: React.createElement(PlataformaScreen, {
       navigate: navigate,
-      narrow: narrow
+      mobile: mobile
     }),
     modulos: React.createElement(ModulosScreen, {
-      navigate: navigate
+      navigate: navigate,
+      mobile: mobile
     }),
     normativa: React.createElement(NormativaScreen, {
-      daysLeft: daysLeft
+      daysLeft: daysLeft,
+      navigate: navigate,
+      mobile: mobile
     }),
-    recursos: React.createElement(RecursosScreen, null),
+    recursos: React.createElement(RecursosScreen, {
+      navigate: navigate
+    }),
     implementacion: React.createElement(ImplementacionScreen, {
       navigate: navigate,
       mobile: mobile
     }),
-    demo: React.createElement(DemoScreen, null),
+    demo: React.createElement(DemoScreen, {
+      place: place,
+      mobile: mobile
+    }),
     verificacion: React.createElement(VerificacionScreen, null)
   };
   return React.createElement("div", {
+    onClick: onLinkClick,
     style: {
       background: 'var(--surface-page)',
       maxWidth: '100vw',

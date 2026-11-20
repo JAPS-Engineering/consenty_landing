@@ -1,7 +1,7 @@
 {
   "name": "Consenty — Consentimiento a prueba de auditoría",
   "short_name": "Consenty",
-  "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.",
+  "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.",
   "lang": "es-CL",
   "start_url": "/",
   "scope": "/",

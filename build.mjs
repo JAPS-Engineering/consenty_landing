@@ -222,6 +222,8 @@ await writeFile('robots.txt',
   `# ${site.name} — ${site.origin}
 User-agent: *
 Allow: /
+# The embedded product demo: framed by the pages above, not a page of its own.
+Disallow: /app-demo/
 
 Sitemap: ${abs('/sitemap.xml')}
 `);

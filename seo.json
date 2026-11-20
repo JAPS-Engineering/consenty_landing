@@ -13,7 +13,7 @@
       "path": "/",
       "nav": "Inicio",
       "title": "Consenty | Consentimiento a prueba de auditoría",
-      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio."
+      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio."
     },
     "plataforma": {
       "path": "/plataforma/",
@@ -47,9 +47,9 @@
     },
     "demo": {
       "path": "/demo/",
-      "nav": "Agendar demo",
-      "title": "Agendar demo — Consenty",
-      "description": "Agenda una demo de Consenty y revisa con nuestro equipo tus puntos de captura, tus brechas frente a la Ley 21.719 y el plan de implementación en cuatro semanas."
+      "nav": "Demo",
+      "title": "Demo interactiva — Consenty",
+      "description": "Recorre Consenty de punta a punta en tu navegador: captura un consentimiento, verifica el ledger, revoca desde el portal y responde una solicitud de derechos. Luego agenda una reunión."
     },
     "verificacion": {
       "path": "/verificacion/",

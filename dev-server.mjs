@@ -6,7 +6,29 @@ import { spawn } from 'node:child_process';
 import chokidar from 'chokidar';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 5173;
+// 5173 is also Vite's default; PORT lets both run side by side.
+const PORT = Number(process.env.PORT) || 5173;
+// The booking form posts to the app's API. Locally the site sends it here, to
+// its own origin, and this server forwards it: no CORS, and the backend can
+// listen wherever it likes (API_TARGET=http://127.0.0.1:8017 npm run dev).
+const API_TARGET = process.env.API_TARGET || 'http://localhost:8000';
+
+function forwardToApi(req, res) {
+  const target = new URL(req.url, API_TARGET);
+  const upstream = http.request(
+    target,
+    { method: req.method, headers: { ...req.headers, host: target.host } },
+    (answer) => {
+      res.writeHead(answer.statusCode || 502, answer.headers);
+      answer.pipe(res);
+    }
+  );
+  upstream.on('error', () => {
+    res.writeHead(502, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ detail: `No hay backend en ${API_TARGET}` }));
+  });
+  req.pipe(upstream);
+}
 
 let isBuilding = false;
 
@@ -45,7 +67,21 @@ const mimeTypes = {
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(__dirname, req.url === '/' ? '/index.html' : req.url);
+  if (req.url.startsWith('/api/')) {
+    forwardToApi(req, res);
+    return;
+  }
+  // Only the path picks the file: `/demo/?paso=evidencia` and
+  // `/app-demo/?scene=empresa-panel` carry state in the query string.
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  } catch {
+    res.writeHead(400);
+    res.end('Bad Request');
+    return;
+  }
+  let filePath = path.join(__dirname, pathname === '/' ? '/index.html' : pathname);
 
   if (!filePath.startsWith(__dirname)) {
     res.writeHead(403);

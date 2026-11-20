@@ -17,7 +17,7 @@
 
 <!-- seo:start — GENERADO por build.mjs — no editar a mano. Fuente: seo.json (ruta "inicio"). -->
 <title>Consenty | Consentimiento a prueba de auditoría</title>
-<meta name="description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.">
+<meta name="description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://consenty.japs.ing/">
 
@@ -25,7 +25,7 @@
 <meta property="og:site_name" content="Consenty">
 <meta property="og:locale" content="es_CL">
 <meta property="og:title" content="Consenty | Consentimiento a prueba de auditoría">
-<meta property="og:description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.">
+<meta property="og:description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.">
 <meta property="og:url" content="https://consenty.japs.ing/">
 <meta property="og:image" content="https://consenty.japs.ing/assets/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -33,7 +33,7 @@
 <meta property="og:image:alt" content="Consenty | Consentimiento a prueba de auditoría">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Consenty | Consentimiento a prueba de auditoría">
-<meta name="twitter:description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.">
+<meta name="twitter:description" content="Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.">
 <meta name="twitter:image" content="https://consenty.japs.ing/assets/og-image.png">
 <meta name="twitter:image:alt" content="Consenty | Consentimiento a prueba de auditoría">
 
@@ -74,7 +74,7 @@
       "@id": "https://consenty.japs.ing/#webpage",
       "url": "https://consenty.japs.ing/",
       "name": "Consenty | Consentimiento a prueba de auditoría",
-      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.",
+      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.",
       "inLanguage": "es-CL",
       "isPartOf": {
         "@id": "https://consenty.japs.ing/#website"
@@ -96,7 +96,7 @@
       "applicationSubCategory": "Gestión de consentimiento y cumplimiento normativo",
       "operatingSystem": "Web",
       "inLanguage": "es-CL",
-      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Trazabilidad auditable para cumplir la Ley 21.719 sin frenar al negocio.",
+      "description": "Captura, prueba y audita el consentimiento de tus clientes desde un solo lugar. Prueba la aplicación real en tu navegador y cumple la Ley 21.719 sin frenar al negocio.",
       "publisher": {
         "@id": "https://consenty.japs.ing/#organization"
       },
@@ -135,6 +135,37 @@
   .cns-barcop-grid{grid-template-columns:repeat(3,1fr)}
   @media (max-width:860px){.cns-barcop-grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:520px){.cns-barcop-grid{grid-template-columns:1fr}}
+  .cns-visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  /* Flow steps: a rule-separated list of tabs; the selected one is marked by the action colour. */
+  .cns-flow-tabs{display:grid;border-top:1px solid var(--border-default)}
+  .cns-flow-tab{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;gap:6px 16px;align-items:start;text-align:left;padding:20px 0 20px 20px;background:none;border:0;border-bottom:1px solid var(--border-default);border-left:2px solid transparent;border-radius:0;cursor:pointer;color:var(--text-secondary);transition:var(--transition-color)}
+  .cns-flow-tab:hover{color:var(--color-ink)}
+  .cns-flow-tab[aria-selected="true"]{color:var(--color-ink);border-left-color:var(--color-indigo)}
+  /* The step's icon sits in a square that takes the wash colour when its step is the one shown. */
+  .cns-flow-tab__icon{display:grid;place-items:center;width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-card-stone);transition:background-color var(--duration-base) var(--ease-standard)}
+  .cns-flow-tab[aria-selected="true"] .cns-flow-tab__icon{background:var(--surface-wash-indigo)}
+  .cns-flow-tab__text{display:grid;gap:6px;min-width:0}
+  .cns-flow-tab:not(:has(.cns-flow-tab__icon)){grid-template-columns:minmax(0,1fr)}
+  .cns-flow-tab__side{font-size:13px;color:var(--text-tertiary)}
+  .cns-flow-tab__title{font-family:var(--font-display);font-size:clamp(18px,1.7vw,22px);letter-spacing:-0.01em;line-height:1.25}
+  .cns-flow-tab__body{font-size:15px;line-height:1.5;color:var(--text-secondary);max-width:44ch}
+  /* As a row (phones, and the demo's stepper): equal columns that always fit, never a scroller. */
+  .cns-flow-tabs--row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;border-top:0;border-bottom:1px solid var(--border-default)}
+  .cns-flow-tabs--row .cns-flow-tab{grid-template-columns:minmax(0,1fr);gap:8px;padding:12px 2px;border-left:0;border-bottom:2px solid transparent;margin-bottom:-1px;text-align:center;justify-items:center}
+  .cns-flow-tabs--row .cns-flow-tab__icon{width:36px;height:36px}
+  .cns-flow-tabs--row .cns-flow-tab[aria-selected="true"]{border-bottom-color:var(--color-indigo)}
+  .cns-flow-tabs--row .cns-flow-tab__title{font-family:var(--font-ui);font-size:clamp(13px,3.4vw,15px);letter-spacing:0;white-space:nowrap}
+  /* Simulated e-mail: a notification over the page, above the sticky header. Flat like
+     everything else: it stands out by being the one dark surface, not by a shadow. */
+  .cns-mail-toast{position:fixed;top:16px;right:16px;z-index:60;width:min(380px,calc(100vw - 32px));box-sizing:border-box;padding:16px 18px 18px;background:var(--surface-inverse);color:var(--color-on-dark);border:1px solid var(--border-on-dark);border-radius:var(--radius-lg);font-family:var(--font-ui);animation:cns-toast-in var(--duration-slow) var(--ease-out) both}
+  @keyframes cns-toast-in{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+  .cns-mail-toast__code{font-family:var(--font-mono);font-size:30px;font-weight:600;line-height:1;letter-spacing:.2em;font-variant-numeric:tabular-nums}
+  .cns-mail-toast__copy{height:32px;padding:0 12px;background:none;color:var(--color-on-dark);border:1px solid var(--border-on-dark);border-radius:var(--radius-button);font-size:13px;cursor:pointer;transition:var(--transition-color)}
+  .cns-mail-toast__copy:hover{background:var(--surface-on-dark-panel)}
+  .cns-mail-toast__close{width:28px;height:28px;margin:-6px -6px -6px 0;background:none;border:0;border-radius:var(--radius-sm);color:rgba(255,255,255,.72);font-size:18px;line-height:1;cursor:pointer}
+  .cns-mail-toast__close:hover{color:#fff}
+  .cns-mail-toast__copy:focus-visible,.cns-mail-toast__close:focus-visible{outline:2px solid var(--color-indigo-soft);outline-offset:2px}
+  @media (max-width:520px){.cns-mail-toast{top:12px;left:12px;right:12px;width:auto}}
   /* No-JS fallback: readable content and real links for crawlers that don't render. */
   .cns-noscript{max-width:720px;margin:0 auto;padding:64px 24px;font-family:var(--font-ui),system-ui,sans-serif;line-height:1.6}
   .cns-noscript nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px}
@@ -171,7 +202,7 @@
       <a href="/normativa/">Normativa · Ley 21.719</a>
       <a href="/recursos/">Recursos</a>
       <a href="/implementacion/">Implementación</a>
-      <a href="/demo/">Agendar demo</a>
+      <a href="/demo/">Demo interactiva y agenda</a>
       <a href="/verificacion/">Verificación de formularios</a>
     </nav>
   </div>

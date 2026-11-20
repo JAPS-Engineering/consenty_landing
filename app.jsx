@@ -14,8 +14,8 @@ const DS = window.Consenty || {};
 const {
   Wordmark, Button, Icon,
   FooterNewsletter,
-  BlogFilterChip, ResearchTable, ContactFormCard,
-  AgentConsoleCard, CapabilityCard, DarkFeatureBand, HeroPhotoCard, ProductCard
+  BlogFilterChip, ResearchTable, Input,
+  CapabilityCard, DarkFeatureBand, ProductCard
 } = DS;
 
 /* ------------------------------------------------------------------ *
@@ -63,6 +63,9 @@ function CheckRow({ children, last = false }) {
 
 const DEADLINE = new Date('2026-12-01T00:00:00');
 
+/** /demo/ opens on the interactive product demo; the booking form is its last section. */
+const BOOKING = { hash: 'agendar' };
+
 const NAV = [
   ['inicio', 'Inicio'],
   ['plataforma', 'Plataforma'],
@@ -85,29 +88,33 @@ const CLIENT_NAMES = [
   { name: 'Vitalis' },
   { name: 'Nortec' },
   { name: 'Grupo Araucaria' },
+  {
+    name: 'Lumisreg',
+    height: 64,
+    src: 'https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tiJzwppdKX__4lX88B3wJ2ohWrdrCRBeN2orTuo5OWH1V3IC4kR44ij_UWjuRTrnpYj6yfVZiwsP2TFMyaHv5ENasCNofPSQFq61QSoAaEXXy1BaLMMKXFfo4hLbuwonhzVrKsJhSz8Y9NPZm9sZ30K81u97o2lo4fx1nnjmKa6pVY9QcWALtcM5gGqXk=w16383'
+  },
   { name: 'Cimar' },
   { name: 'JAPS', src: '/assets/partners/japs-wordmark.svg' }
 ];
-const INTEGRATIONS = ['E-commerce', 'CRM', 'API'];
 
 const MODULES = [
   {
     name: 'Captura integrada',
     description: 'Conectores y APIs livianas en cada punto donde tu empresa interactúa con las personas.',
     bullets: ['Widget web y centro de preferencias', 'Conectores CRM, e-commerce y offline', 'Sello de tiempo, versión y hash'],
-    ctaLabel: 'Ver captura'
+    ctaLabel: 'Ver captura', anchor: 'captura'
   },
   {
     name: 'Panel DPO',
     description: 'Centro de mando para supervisar consentimientos, alertas y solicitudes de titulares.',
     bullets: ['Supervisión de todos los consentimientos', 'Alertas de cambios y plazos', 'Expedientes exportables'],
-    ctaLabel: 'Ver panel'
+    ctaLabel: 'Ver panel', anchor: 'panel'
   },
   {
     name: 'Portal de titulares',
     description: 'Autoservicio para ejercer los seis derechos BARCOP sin trámites intermedios.',
     bullets: ['Acceso con RUT y correo', 'Los seis derechos BARCOP', 'Respuestas con trazabilidad'],
-    ctaLabel: 'Ver portal'
+    ctaLabel: 'Ver portal', anchor: 'portal'
   }
 ];
 
@@ -131,25 +138,10 @@ const RECURSOS = [
 
 const RECURSO_FILTERS = ['Todo', 'Normativa', 'Consentimiento', 'Derechos BARCOP', 'Implementación'];
 
-const BARCOP = [
-  ['B', 'Bloqueo', 'Suspender temporalmente el uso de sus datos.'],
-  ['A', 'Acceso', 'Consultar y conocer los datos almacenados.'],
-  ['R', 'Rectificación', 'Corregir información inexacta o incompleta.'],
-  ['C', 'Cancelación', 'Eliminar datos o revocar autorizaciones.'],
-  ['O', 'Oposición', 'Oponerse al tratamiento para fines específicos.'],
-  ['P', 'Portabilidad', 'Solicitar y transferir sus datos estructurados.']
-];
-
 const PILARES = [
   ['01', 'Cumplimiento legal out-of-the-box', 'El motor gestiona todo el ecosistema de derechos ARCOP+ —acceso, rectificación, cancelación, oposición, portabilidad y bloqueo— de forma automatizada. Se encarga de la parte compleja que la ley exige, para que tu empresa cumpla sin volverse experta legal.'],
   ['02', 'Gestión dinámica de datos', 'En lugar de guardar archivos estáticos, el sistema usa registros estructurados en JSON/XML. Eso permite generar comprobantes on-demand al instante, con la certeza de que el documento refleja siempre la realidad del consentimiento en la base de datos.'],
   ['03', 'Accesible para toda empresa', 'Pensado para el universo de empresas que no tienen grandes departamentos de TI. Con widgets simples y APIs livianas, cualquier negocio integra una capa de cumplimiento rápidamente.']
-];
-
-const ALTA_STEPS = [
-  ['01', 'RUT y correo', 'El titular ingresa los datos mínimos para iniciar.'],
-  ['02', 'Activación', 'Se habilita automáticamente su cuenta de acceso al portal.'],
-  ['03', 'Trazabilidad', 'Tu empresa obtiene registro y evidencia auditables desde el primer día.']
 ];
 
 const RIESGOS = [
@@ -166,12 +158,15 @@ const SEMANAS = [
   ['Semana 4', 'Despliegue', 'Portal BARCOP activo para titulares y capacitación al DPO o equipo legal.', 'Entregable: portal público, panel DPO operativo y primer expediente exportado.']
 ];
 
+/* The booking form. `name` is the key the app's API expects
+   (POST /api/public/demo-requests); `max` mirrors its limits so a visitor is
+   stopped by the field, not by a rejected submission. */
 const DEMO_FIELDS = [
-  { name: 'nombre', label: 'Nombre', required: true },
-  { name: 'empresa', label: 'Empresa', required: true },
-  { name: 'email', label: 'Correo corporativo', type: 'email', required: true },
-  { name: 'cargo', label: 'Cargo' },
-  { name: 'canales', label: '¿Dónde capturas datos hoy?', as: 'textarea', full: true, placeholder: 'Web, e-commerce, sucursal, call center…' }
+  { name: 'contact_name', label: 'Nombre', required: true, max: 255, autoComplete: 'name' },
+  { name: 'company_name', label: 'Empresa', required: true, max: 255, autoComplete: 'organization' },
+  { name: 'contact_email', label: 'Correo corporativo', type: 'email', required: true, max: 254, autoComplete: 'email' },
+  { name: 'job_title', label: 'Cargo', max: 120, autoComplete: 'organization-title' },
+  { name: 'capture_channels', label: '¿Dónde capturas datos hoy?', as: 'textarea', full: true, max: 1000, placeholder: 'Web, e-commerce, sucursal, call center…' }
 ];
 
 const FOOTER_COLUMNS = [
@@ -196,7 +191,7 @@ const FOOTER_COLUMNS = [
   ['Empresa', [
     ['Nosotros', null],
     ['Seguridad', null],
-    ['Contacto', 'demo'],
+    ['Contacto', 'demo', BOOKING],
     ['Estado del servicio', null]
   ]]
 ];
@@ -205,9 +200,12 @@ const FOOTER_COLUMNS = [
  * Hooks
  * ------------------------------------------------------------------ */
 
-/** Path for a route: 'inicio' is the site root, everything else a real directory. */
-function hrefFor(route) {
-  return route === 'inicio' ? '/' : '/' + route + '/';
+/** Path for a route: 'inicio' is the site root, everything else a real directory.
+ *  `target` adds a query string (`search`) and an in-page anchor (`hash`). */
+function hrefFor(route, target) {
+  const base = route === 'inicio' ? '/' : '/' + route + '/';
+  if (!target) return base;
+  return base + (target.search ? '?' + target.search : '') + (target.hash ? '#' + target.hash : '');
 }
 
 function readRoute() {
@@ -245,45 +243,91 @@ function syncHead(route) {
   set('meta[name="twitter:description"]', 'content', page.description);
 }
 
-/** History routing: one indexable URL per screen, working back button, deep links. */
+function readLocation() {
+  return {
+    route: readRoute(),
+    search: window.location.search.replace(/^\?/, ''),
+    hash: window.location.hash.replace(/^#/, '')
+  };
+}
+
+/** History routing: one indexable URL per screen, working back button, deep links.
+ *  `place.visit` changes on every navigation, including one that stays on the same
+ *  screen and only moves to another anchor or query. */
 function useRoute() {
-  const [route, setRoute] = useState(readRoute);
+  const [place, setPlace] = useState(() => ({ ...readLocation(), visit: 0 }));
 
   useEffect(() => {
-    const onPop = () => setRoute(readRoute());
+    const onPop = () => setPlace((p) => ({ ...readLocation(), visit: p.visit + 1 }));
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  useEffect(() => {
-    syncHead(route);
-    window.scrollTo(0, 0);
-  }, [route]);
+  useEffect(() => { syncHead(place.route); }, [place.route]);
 
-  const navigate = useCallback((next) => {
-    if (readRoute() === next) {
-      window.scrollTo(0, 0);
-      return;
-    }
-    window.history.pushState(null, '', hrefFor(next));
-    setRoute(next);
+  useEffect(() => {
+    // An anchor lands on its element (sections keep clear of the sticky header
+    // through scroll-margin-top); anything else starts at the top.
+    const anchor = place.hash && document.getElementById(place.hash);
+    if (anchor) anchor.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }, [place.route, place.hash, place.visit]);
+
+  const navigate = useCallback((next, target) => {
+    const href = hrefFor(next, target);
+    const current = window.location.pathname + window.location.search + window.location.hash;
+    if (href !== current) window.history.pushState(null, '', href);
+    setPlace((p) => ({ ...readLocation(), visit: p.visit + 1 }));
   }, []);
 
-  return [route, navigate];
+  return [place, navigate];
+}
+
+function isPlainClick(e) {
+  return !(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 }
 
 /* Intercept only the clicks the browser would handle as same-tab navigation.
    Ctrl/cmd/shift-click and middle-click fall through to the real href, which is
    also what a crawler follows. */
-function navLinkProps(route, navigate) {
+function navLinkProps(route, navigate, target) {
   return {
-    href: hrefFor(route),
+    href: hrefFor(route, target),
     onClick: (e) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!isPlainClick(e)) return;
       e.preventDefault();
-      navigate(route);
+      navigate(route, target);
     }
   };
+}
+
+/* Design-system components that render their own <a> (ProductCard,
+   CapabilityCard, ResearchTable) take an href but no click handler. One
+   delegated listener turns any same-site link they render into client-side
+   navigation, so they behave like every other link on the page. */
+function routeLinkHandler(navigate) {
+  return (e) => {
+    if (!isPlainClick(e)) return;
+    const anchor = e.target.closest && e.target.closest('a[href]');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+    const url = new URL(anchor.href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+    const slug = url.pathname.replace(/^\/+|\/+$/g, '');
+    const route = slug === '' ? 'inicio' : slug;
+    if (ROUTES.indexOf(route) === -1 || url.pathname !== hrefFor(route)) return;
+    e.preventDefault();
+    navigate(route, { search: url.search.replace(/^\?/, ''), hash: url.hash.replace(/^#/, '') });
+  };
+}
+
+function useViewportHeight() {
+  const [h, setH] = useState(() => window.innerHeight);
+  useEffect(() => {
+    const onResize = () => setH(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return h;
 }
 
 function useViewportWidth() {
@@ -298,6 +342,13 @@ function useViewportWidth() {
 
 const preventDefault = (e) => e.preventDefault();
 const LOGIN_URL = 'https://app.consenty.japs.ing/login';
+
+/* Where the booking form is sent: the app's public API. A local copy of the
+   site posts to its own origin instead, where dev-server.mjs forwards /api to a
+   local backend, so trying the form never writes to production. */
+const API_ORIGIN = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+  ? ''
+  : 'https://app.consenty.japs.ing';
 
 /* ------------------------------------------------------------------ *
  * Chrome — announcement bar, nav, footer
@@ -362,8 +413,7 @@ function DeadlineBar({ onNavigate }) {
           <span>{pad2(hours)}:{pad2(minutes)}:{pad2(seconds)}</span>
         </span>
         <a
-          href="#/normativa"
-          onClick={() => onNavigate('normativa')}
+          {...navLinkProps('normativa', onNavigate)}
           style={{ fontSize: 13.5, color: 'var(--color-ink)', textUnderlineOffset: 3, whiteSpace: 'nowrap' }}
         >
           Ver checklist
@@ -425,7 +475,7 @@ function SiteHeader({ route, navigate, mobile }) {
                 <a href={LOGIN_URL} data-plain style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
                   Ingresar
                 </a>
-                <Button variant="primary" size="sm" onClick={() => navigate('demo')}>Agendar demo</Button>
+                <Button variant="primary" size="sm" onClick={() => navigate('demo', BOOKING)}>Agendar demo</Button>
               </div>
             </Fragment>
           )}
@@ -463,7 +513,7 @@ function SiteHeader({ route, navigate, mobile }) {
               Ingresar
             </a>
             <div style={{ marginTop: 20 }}>
-              <Button variant="primary" onClick={() => navigate('demo')}>Agendar demo</Button>
+              <Button variant="primary" onClick={() => navigate('demo', BOOKING)}>Agendar demo</Button>
             </div>
           </div>
         </div>
@@ -492,10 +542,10 @@ function SiteFooter({ navigate }) {
           {FOOTER_COLUMNS.map(([heading, links]) => (
             <div key={heading} style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
               <span style={{ fontSize: 14 }}>{heading}</span>
-              {links.map(([label, target]) => (
+              {links.map(([label, target, place]) => (
                 <a
                   key={label} data-plain
-                  {...(target ? navLinkProps(target, navigate) : { href: '#', onClick: preventDefault })}
+                  {...(target ? navLinkProps(target, navigate, place) : { href: '#', onClick: preventDefault })}
                   style={{ color: 'var(--text-muted)', fontSize: 13 }}
                 >{label}</a>
               ))}
@@ -534,36 +584,514 @@ function SiteFooter({ navigate }) {
 }
 
 /* ------------------------------------------------------------------ *
+ * The product, live
+ *
+ * Every picture of Consenty on this site is Consenty itself: the real
+ * dashboard, portal and widget, built from the app's own source into
+ * /app-demo/ and framed here. It runs against a simulated API inside the
+ * visitor's browser, with fictional data, and sends nothing anywhere
+ * (consenty_app/docs/architecture/demo-embebible.md has the contract).
+ * ------------------------------------------------------------------ */
+
+const APP_DEMO = '/app-demo/';
+const DEMO_SOURCE = 'consenty-demo';
+const APP_HOST = 'app.consenty.japs.ing';
+const SHOP_HOST = 'tiendaalba.example';
+
+/* Stills captured from the same build (scripts/capture-posters.mjs), shown
+   until the live screen is ready. Only frames with a fixed desktop size have one. */
+const POSTERS = [
+  'empresa-panel-full', 'empresa-ledger-verificado-full', 'empresa-ledger-verificado-content',
+  'empresa-datos-content', 'empresa-solicitud-detalle-content', 'empresa-ficha-content',
+  'empresa-integracion-instalacion-content'
+];
+
+let frameCounter = 0;
+
+/** A stable id per mounted frame: the demo echoes it in every message. */
+function useFrameId(preferred) {
+  const ref = useRef(null);
+  if (ref.current === null) {
+    frameCounter += 1;
+    ref.current = preferred || 'marco-' + frameCounter;
+  }
+  return ref.current;
+}
+
+function demoUrl(scene, frame, options) {
+  const query = new URLSearchParams({ scene, frame });
+  for (const key of ['chrome', 'latency', 'turnstile', 'requires', 'still']) {
+    if (options[key]) query.set(key, options[key]);
+  }
+  if (options.reset) query.set('reset', '1');
+  return APP_DEMO + '?' + query.toString();
+}
+
+/** Width of an element, tracked across resizes. */
+function useElementWidth() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return undefined;
+    const measure = () => setWidth(node.getBoundingClientRect().width);
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
+}
+
+/** True while the element is on screen or about to be. */
+function useNearViewport(margin) {
+  const ref = useRef(null);
+  const [near, setNear] = useState(typeof IntersectionObserver === 'undefined');
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => setNear(entries[entries.length - 1].isIntersecting),
+      { rootMargin: margin }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [margin]);
+  return [ref, near];
+}
+
+/**
+ * One screen of the real app in a flat card.
+ *
+ * Console screens are laid out at a desktop size and scaled to the card, so a
+ * dashboard reads as a dashboard at any column width; once the card is too
+ * narrow for that to stay legible, the frame takes its natural width and the
+ * app shows its own phone layout. `fluid` screens (the shop page, the portal)
+ * always use their natural width.
+ *
+ * A showcase frame is a live picture: it renders the app but takes no input,
+ * so scrolling the page never gets trapped inside it. Only `interactive`
+ * frames can be used, and those stay mounted once loaded.
+ */
+function AppFrame({
+  scene, label, address,
+  interactive = false, fluid = false, eager = false,
+  chrome = 'full', turnstile, reset = false, requires,
+  width = 1280, height = 800, naturalHeight = 620, fitHeight, autoHeight = false,
+  frameId, onMessage, apiRef, tone = 'light', style
+}) {
+  const id = useFrameId(frameId);
+  const [sizeRef, cardWidth] = useElementWidth();
+  const [nearRef, near] = useNearViewport(interactive ? '600px' : '350px');
+  const iframeRef = useRef(null);
+  const [ready, setReady] = useState(false);
+  const [everNear, setEverNear] = useState(eager);
+  const [contentHeight, setContentHeight] = useState(0);
+
+  useEffect(() => { if (near) setEverNear(true); }, [near]);
+  // A showcase frame far off screen gives its memory back; an interactive one
+  // holds what the visitor did in it.
+  const mounted = interactive ? everNear : (eager ? everNear : near);
+  useEffect(() => { if (!mounted) setReady(false); }, [mounted]);
+
+  const handlerRef = useRef(onMessage);
+  handlerRef.current = onMessage;
+
+  useEffect(() => {
+    const onWindowMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== DEMO_SOURCE || data.frame !== id) return;
+      if (data.type === 'ready') setReady(true);
+      // A single component reports how tall it is; the card takes that height.
+      if (data.type === 'resize' && autoHeight && data.payload && data.payload.height > 0) {
+        setContentHeight(Math.min(data.payload.height, 900));
+      }
+      if (handlerRef.current) handlerRef.current(data.type, data.payload || {});
+    };
+    window.addEventListener('message', onWindowMessage);
+    return () => window.removeEventListener('message', onWindowMessage);
+  }, [id, autoHeight]);
+
+  useEffect(() => {
+    if (!apiRef) return undefined;
+    apiRef.current = {
+      send: (type, payload) => {
+        const target = iframeRef.current && iframeRef.current.contentWindow;
+        if (target) {
+          target.postMessage({ target: DEMO_SOURCE, v: 1, frame: id, type, payload }, window.location.origin);
+        }
+      }
+    };
+    return () => { apiRef.current = null; };
+  }, [apiRef, id]);
+
+  const natural = fluid || (cardWidth > 0 && cardWidth < 640);
+  const scale = natural || cardWidth === 0 ? 1 : cardWidth / width;
+  // `fitHeight` pins the card's height (two frames side by side must line up);
+  // the app is then given however many logical pixels fill it at this scale.
+  const logicalHeight = fitHeight && !natural ? Math.round(fitHeight / scale) : height;
+  const boxHeight = natural
+    ? (fitHeight || (autoHeight && contentHeight) || naturalHeight)
+    : Math.round(logicalHeight * scale);
+  // The address is fixed when the frame mounts. Changing an iframe's src
+  // navigates it and adds an entry to the tab's history; a different screen is
+  // a new frame (a new `key`) or a command sent to the one that is there.
+  const [src] = useState(() => demoUrl(scene, id, {
+    chrome, turnstile, reset, requires,
+    // A frame that is only looked at loads quickly and shows no scrollbars.
+    latency: interactive ? null : 'fast', still: interactive ? null : '1'
+  }));
+  const dark = tone === 'dark';
+  const posterKey = scene + '-' + chrome;
+  const poster = !natural && !interactive && POSTERS.indexOf(posterKey) !== -1
+    ? '/assets/app/' + posterKey + '.webp'
+    : null;
+
+  return (
+    <figure
+      ref={nearRef} data-ui
+      style={{
+        margin: 0, minWidth: 0, overflow: 'hidden',
+        border: `1px solid ${dark ? 'var(--border-on-dark)' : 'var(--border-default)'}`,
+        borderRadius: 'var(--radius-lg)', background: 'var(--surface-card)', ...style
+      }}
+    >
+      {address && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+          minHeight: 40, padding: '8px 16px',
+          borderBottom: '1px solid var(--border-utility)', background: 'var(--surface-card-stone)'
+        }}>
+          <span style={{
+            minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text-secondary)'
+          }}>{address}</span>
+          <span style={{ flex: '0 0 auto', fontSize: 13, color: 'var(--text-secondary)' }}>
+            {interactive ? 'En vivo · datos ficticios' : 'Datos ficticios'}
+          </span>
+        </div>
+      )}
+      <div ref={sizeRef} style={{ position: 'relative', height: boxHeight, background: 'var(--surface-card)' }}>
+        {!ready && !poster && (
+          <div aria-hidden="true" style={{
+            position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+            background: 'var(--surface-wash-mist)', color: 'var(--text-tertiary)', fontSize: 14
+          }}>
+            Abriendo Consenty…
+          </div>
+        )}
+        {!ready && poster && (
+          <img
+            src={poster} alt="" decoding="async"
+            loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined}
+            style={{
+              position: 'absolute', inset: 0, width: '100%', height: '100%', maxWidth: 'none',
+              objectFit: 'cover', objectPosition: 'left top'
+            }}
+          />
+        )}
+        {mounted && (
+          <iframe
+            ref={iframeRef}
+            src={src}
+            title={label}
+            loading={eager ? undefined : 'lazy'}
+            tabIndex={interactive ? undefined : -1}
+            aria-hidden={interactive ? undefined : 'true'}
+            {...(interactive ? {} : { inert: '' })}
+            style={{
+              position: 'absolute', top: 0, left: 0, border: 0, display: 'block',
+              width: natural ? '100%' : width, height: natural ? '100%' : logicalHeight,
+              transform: natural ? undefined : `scale(${scale})`, transformOrigin: '0 0',
+              opacity: ready ? 1 : 0, transition: 'opacity var(--duration-slow) var(--ease-standard)',
+              pointerEvents: interactive ? undefined : 'none'
+            }}
+          />
+        )}
+      </div>
+      {!interactive && <figcaption className="cns-visually-hidden">{label}</figcaption>}
+    </figure>
+  );
+}
+
+/* The product's flow, start to finish. Each step names whose screen it is and
+   which real screen shows it; the home page walks through them and /demo/
+   lets the visitor do them. */
+const FLOW = [
+  {
+    key: 'configura', icon: 'list-checks', short: 'Configurar', side: 'Tu empresa',
+    title: 'Declaras qué datos usas y para qué',
+    body: 'Cada permiso lleva su base legal, su plazo y un texto versionado. Lo que tu cliente verá sale de aquí.',
+    scene: 'empresa-datos', address: APP_HOST + '/dashboard/tienda-alba/data-types'
+  },
+  {
+    key: 'captura', icon: 'mouse-pointer-click', short: 'Capturar', side: 'Tu cliente',
+    title: 'Tu cliente decide en tu propio formulario',
+    body: 'El widget verifica su correo con un código y pide cada permiso por separado. Nada viene marcado.',
+    // The widget open on its permissions, none of them decided yet.
+    scene: 'titular-widget-permisos', address: SHOP_HOST + '/cotizar', fluid: true, tall: 720
+  },
+  {
+    key: 'evidencia', icon: 'link', short: 'Evidencia', side: 'Tu empresa',
+    title: 'Cada decisión queda encadenada en el ledger',
+    body: 'Sello de tiempo, versión del texto y hash enlazado al anterior. La integridad se comprueba con un clic.',
+    scene: 'empresa-ledger-verificado', address: APP_HOST + '/dashboard/tienda-alba/ledger'
+  },
+  {
+    key: 'portal', icon: 'undo-2', short: 'Revocar', side: 'Tu cliente',
+    title: 'Puede revocar cuando quiera, sin llamarte',
+    body: 'En su portal ve qué autorizó, hasta cuándo, y lo cambia. La revocación llega a tu panel al instante.',
+    scene: 'titular-portal', address: APP_HOST + '/portal/consentimientos', fluid: true
+  },
+  {
+    key: 'derechos', icon: 'clock', short: 'Responder', side: 'Tu empresa',
+    title: 'Respondes cada solicitud dentro del plazo',
+    body: 'Las solicitudes de derechos llegan con folio, acuse y vencimiento a 30 días. La respuesta emite su documento.',
+    scene: 'empresa-solicitud-detalle', address: APP_HOST + '/dashboard/tienda-alba/rights-requests'
+  }
+];
+
+/** Arrow keys move between tabs, as the tabs pattern expects. */
+function tabKeyHandler(count, current, select) {
+  return (e) => {
+    const move = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!move) return;
+    e.preventDefault();
+    const next = (current + move + count) % count;
+    select(next);
+    const tabs = e.currentTarget.parentNode.querySelectorAll('[role="tab"]');
+    if (tabs[next]) tabs[next].focus();
+  };
+}
+
+/** A list of steps beside the real screen each one produces. `items` follow
+ *  the shape of FLOW; `cta` builds the action under the list for the step shown. */
+function ScreenTour({ items, name, mobile, cta }) {
+  const [index, setIndex] = useState(0);
+  const step = items[index];
+
+  return (
+    <div style={{
+      display: 'grid', gap: 'clamp(28px,4vw,56px)', alignItems: 'start',
+      gridTemplateColumns: mobile ? '1fr' : 'minmax(300px,5fr) 8fr'
+    }}>
+      <div>
+        <div role="tablist" aria-label={name} aria-orientation={mobile ? 'horizontal' : 'vertical'}
+          className={mobile ? 'cns-flow-tabs cns-flow-tabs--row' : 'cns-flow-tabs'}>
+          {items.map((item, i) => {
+            const selected = i === index;
+            return (
+              <button
+                key={item.key} role="tab" type="button"
+                id={'tour-tab-' + item.key} aria-selected={selected} aria-controls={'tour-panel-' + items[0].key}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => setIndex(i)}
+                onKeyDown={tabKeyHandler(items.length, index, setIndex)}
+                className="cns-flow-tab"
+              >
+                {item.icon && (
+                  <span className="cns-flow-tab__icon">
+                    <Icon name={item.icon} size={mobile ? 18 : 20} tone={selected ? 'dark' : 'muted'} />
+                  </span>
+                )}
+                <span className="cns-flow-tab__text">
+                  {!mobile && <span className="cns-flow-tab__side">{item.side}</span>}
+                  <span className="cns-flow-tab__title">{mobile ? item.short : item.title}</span>
+                  {selected && !mobile && <span className="cns-flow-tab__body">{item.body}</span>}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        {mobile && (
+          <div style={{ marginTop: 24 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>{step.side}</span>
+            <h3 className="cns-feature-heading" style={{ margin: '6px 0 0', textWrap: 'balance' }}>{step.title}</h3>
+            <p className="cns-body" style={{ margin: '10px 0 0', color: 'var(--text-secondary)', textWrap: 'pretty' }}>
+              {step.body}
+            </p>
+          </div>
+        )}
+        {cta && <div style={{ marginTop: 'clamp(24px,3vw,36px)' }}>{cta(step)}</div>}
+      </div>
+      <div
+        id={'tour-panel-' + items[0].key} role="tabpanel" aria-labelledby={'tour-tab-' + step.key}
+        style={{ minWidth: 0 }}
+      >
+        <AppFrame
+          key={step.key}
+          scene={step.scene} label={step.side + ': ' + step.title} address={step.address}
+          fluid={Boolean(step.fluid)} naturalHeight={step.tall || (step.fluid ? 640 : 600)}
+          chrome={step.fluid ? 'full' : 'content'} width={1040} height={760}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Words on one side, the screen they describe on the other. */
+function ProductSplit({ id, eyebrow, heading, body, children, frame, reverse = false, mobile, level = 2 }) {
+  const Heading = 'h' + level;
+  const text = (
+    <div style={{ minWidth: 0 }}>
+      {eyebrow && <MonoLabel tone="indigo">{eyebrow}</MonoLabel>}
+      <Heading className="cns-card-heading" style={{
+        margin: eyebrow ? '16px 0 0' : 0, maxWidth: '20ch',
+        fontSize: 'clamp(26px,3.2vw,40px)', letterSpacing: '-0.02em', textWrap: 'balance'
+      }}>{heading}</Heading>
+      {body && (
+        <p className="cns-body-large" style={{
+          margin: '20px 0 0', maxWidth: '52ch', color: 'var(--text-secondary)',
+          fontSize: 'clamp(16px,1.5vw,18px)', textWrap: 'pretty'
+        }}>{body}</p>
+      )}
+      {children}
+    </div>
+  );
+  const picture = <div style={{ minWidth: 0 }}>{frame}</div>;
+  return (
+    <div id={id} style={{
+      display: 'grid', gap: 'clamp(28px,4vw,64px)', alignItems: 'center',
+      gridTemplateColumns: mobile ? '1fr' : (reverse ? '7fr 5fr' : '5fr 7fr')
+    }}>
+      {reverse && !mobile ? picture : text}
+      {reverse && !mobile ? text : picture}
+    </div>
+  );
+}
+
+/** A plain text link into the demo, opened on the step that shows the thing. */
+function DemoLink({ navigate, step, children }) {
+  return (
+    <a {...navLinkProps('demo', navigate, { search: 'paso=' + step })} style={{
+      display: 'inline-block', marginTop: 24, fontSize: 16, color: 'var(--text-link)', textUnderlineOffset: 3
+    }}>{children}</a>
+  );
+}
+
+/**
+ * The e-mail a live widget "sent", as the notification it would be on the
+ * visitor's own screen: it slides in over the page, carries the code large
+ * enough to read at a glance, and stays until the code is used or it is closed.
+ * Nothing is actually mailed; the code comes from the demo's own bridge.
+ */
+function MailToast({ mail }) {
+  const [closed, setClosed] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => { setCopied(false); }, [mail]);
+  if (!mail || closed === mail) return null;
+
+  const copy = () => {
+    try { navigator.clipboard.writeText(mail.code).catch(() => {}); } catch (e) { /* unavailable */ }
+    setCopied(true);
+  };
+
+  return (
+    <div className="cns-mail-toast" role="status" aria-live="polite">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Icon name="mail" size={16} tone="light" />
+        <span style={{ flex: 1, fontSize: 13, color: 'rgba(255,255,255,.72)' }}>Correo nuevo · simulado</span>
+        <button
+          type="button" onClick={() => setClosed(mail)} aria-label="Cerrar la notificación"
+          className="cns-mail-toast__close"
+        >×</button>
+      </div>
+      <div style={{ marginTop: 12, fontSize: 15 }}>Tu código de verificación de Consenty</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 16px', marginTop: 8 }}>
+        <strong className="cns-mail-toast__code">{mail.code}</strong>
+        <button type="button" onClick={copy} className="cns-mail-toast__copy">
+          {copied ? 'Copiado' : 'Copiar'}
+        </button>
+      </div>
+      <div style={{ marginTop: 10, fontSize: 13, lineHeight: 1.4, color: 'rgba(255,255,255,.72)' }}>
+        Para {mail.email}. En producción llega al correo del titular; aquí no se envía nada.
+      </div>
+    </div>
+  );
+}
+
+/** The one-time code a live widget "sent", shown where the visitor can read it. */
+function useSimulatedMail() {
+  const [mail, setMail] = useState(null);
+  const onMessage = useCallback((type, payload) => {
+    if (type === 'otp-sent') setMail(payload);
+    if (type === 'otp-verified') setMail(null);
+  }, []);
+  return [mail, onMessage];
+}
+
+/**
+ * Both sides of the product in one picture: a console screen, and beside it the
+ * widget a customer sees, usable. They run on the same simulated state, so a
+ * permission saved in the widget shows up in the console while you watch.
+ */
+function LiveHero({ scene, label, address, mobile }) {
+  const [mail, onWidgetMessage] = useSimulatedMail();
+  const height = mobile ? 560 : 600;
+  const columns = mobile ? '1fr' : 'minmax(0,1fr) minmax(340px,400px)';
+
+  return (
+    <div>
+      <MailToast mail={mail} />
+      <div style={{ display: 'grid', gap: 'clamp(16px,2vw,24px)', alignItems: 'start', gridTemplateColumns: columns }}>
+        <AppFrame eager scene={scene} label={label} address={address} fitHeight={height} />
+        <AppFrame
+          interactive fluid eager scene="titular-widget-autonomo"
+          label="El widget de Consenty en el sitio de una tienda de ejemplo"
+          address={SHOP_HOST + '/privacidad'} fitHeight={height} onMessage={onWidgetMessage}
+        />
+      </div>
+      <div style={{
+        display: 'grid', gap: '8px clamp(16px,2vw,24px)', gridTemplateColumns: columns,
+        marginTop: 14, fontSize: 14, lineHeight: 1.45, color: 'var(--text-secondary)'
+      }}>
+        <span style={{ textWrap: 'pretty' }}>
+          Es la aplicación real, funcionando en tu navegador con una empresa ficticia.
+        </span>
+        <span style={{ textWrap: 'pretty' }}>
+          {mail ? (
+            <Fragment>
+              Te llegó una notificación con el código:{' '}
+              <strong style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.1em', color: 'var(--color-ink)' }}>
+                {mail.code}
+              </strong>
+            </Fragment>
+          ) : 'Prueba el widget con el RUT 12.345.678-5 y cualquier correo. El código llega como notificación.'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  * Shared marketing blocks
  * ------------------------------------------------------------------ */
+
+/** DarkFeatureBand sets its heading at a fixed display size; on a phone that
+ *  wraps to four lines. The same words, sized to the viewport. */
+function bandHeading(text) {
+  return <span style={{ display: 'block', fontSize: 'clamp(32px,5.6vw,60px)', textWrap: 'balance' }}>{text}</span>;
+}
 
 function useBandActions(navigate) {
   return (
     <Fragment>
-      <Button variant="primary-inverse" onClick={() => navigate('demo')}>Agendar demo</Button>
+      <Button variant="primary-inverse" onClick={() => navigate('demo', BOOKING)}>Agendar demo</Button>
       <a
-        href="#/implementacion" data-plain
-        onClick={() => navigate('implementacion')}
+        data-plain {...navLinkProps('implementacion', navigate)}
         style={{ color: 'var(--color-on-dark)', fontSize: 16 }}
       >Ver la implementación</a>
     </Fragment>
   );
 }
 
-/** The evidence/console overlay used on the hero and platform media cards. */
-function ConsoleOverlay() {
-  return (
-    <AgentConsoleCard
-      title="Consenty · Registro de consentimientos"
-      status="Al día"
-      integrations={INTEGRATIONS}
-      prompt="¿Qué base de licitud respalda la campaña de octubre?"
-      response="3.482 consentimientos vigentes · 2 flujos requieren revisión · expediente listo para exportar."
-    />
-  );
-}
-
-function ModuleGrid({ navigate }) {
+function ModuleGrid() {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))', gap: 24
@@ -575,7 +1103,7 @@ function ModuleGrid({ navigate }) {
           description={m.description}
           bullets={m.bullets}
           ctaLabel={m.ctaLabel}
-          onClick={() => navigate('modulos')}
+          href={hrefFor('modulos', { hash: m.anchor })}
         />
       ))}
     </div>
@@ -585,10 +1113,18 @@ function ModuleGrid({ navigate }) {
 /** One mark inside the marquee: a real logo image when `src` is set, otherwise
  *  the plain-text fallback TrustLogoStrip used (no artwork for the invented names). */
 function LogoMarqueeCell({ item, decorative }) {
+  // A logo hosted elsewhere can stop loading (a host that refuses hotlinks, a
+  // moved file). The name in text is the same mark the cells without artwork
+  // already use, and better than a broken-image icon in the strip.
+  const [failed, setFailed] = useState(false);
   return (
     <span className="cns-logo-cell" aria-hidden={decorative ? 'true' : undefined}>
-      {item.src
-        ? <img src={item.src} alt={item.name} className="cns-logo-cell__img" />
+      {item.src && !failed
+        ? <img
+            src={item.src} alt={item.name} className="cns-logo-cell__img"
+            style={item.height ? { height: item.height } : undefined}
+            onError={() => setFailed(true)}
+          />
         : item.name}
     </span>
   );
@@ -621,7 +1157,7 @@ function LogoMarquee({ eyebrow, items }) {
  * Screen: Inicio
  * ------------------------------------------------------------------ */
 
-function HomeScreen({ navigate, daysLeft }) {
+function HomeScreen({ navigate, daysLeft, mobile }) {
   const bandActions = useBandActions(navigate);
 
   return (
@@ -644,8 +1180,8 @@ function HomeScreen({ navigate, daysLeft }) {
           display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center',
           gap: '20px 32px', marginTop: 40
         }}>
-          <Button variant="primary" onClick={() => navigate('demo')}>Agendar demo</Button>
-          <Button variant="secondary" onClick={() => navigate('plataforma')}>Ver la plataforma</Button>
+          <Button variant="primary" onClick={() => navigate('demo')}>Probar la demo</Button>
+          <Button variant="secondary" onClick={() => navigate('demo', BOOKING)}>Agendar una reunión</Button>
         </div>
         <div style={{
           display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center',
@@ -659,24 +1195,45 @@ function HomeScreen({ navigate, daysLeft }) {
         </div>
       </Shell>
 
+      {/* The hero picture is the product: the console a DPO opens every morning,
+          and the widget that fills it. */}
       <Shell pad={`clamp(40px,7vw,80px) ${GUTTER} 0`}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
-          <div style={{ flex: '3 1 420px', minWidth: 0 }}>
-            <HeroPhotoCard ratio="16 / 9" radius="var(--radius-lg)" overlay={<ConsoleOverlay />} />
-          </div>
-          <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-            <HeroPhotoCard
-              ratio="3 / 4" radius="var(--radius-lg)"
-              caption="Equipos de legal, seguridad y marketing sobre un mismo registro."
-            />
-          </div>
-        </div>
+        <LiveHero
+          mobile={mobile} scene="empresa-panel"
+          label="Panel de control de Consenty con los consentimientos de una empresa de ejemplo"
+          address={APP_HOST + '/dashboard/tienda-alba'}
+        />
       </Shell>
 
       <Shell>
         <LogoMarquee
           eyebrow="Organizaciones que están preparando su cumplimiento con Consenty (nombres de referencia)"
           items={CLIENT_NAMES}
+        />
+      </Shell>
+
+      <Shell pad={`0 ${GUTTER} clamp(64px,9vw,120px)`}>
+        <h2 className="cns-section-heading" style={{
+          margin: 0, maxWidth: '22ch',
+          fontSize: 'clamp(30px,4.4vw,48px)', letterSpacing: '-0.025em', textWrap: 'balance'
+        }}>
+          Del formulario al expediente, en cinco pasos
+        </h2>
+        <p className="cns-body-large" style={{
+          margin: '20px 0 clamp(32px,5vw,56px)', maxWidth: '58ch', color: 'var(--text-secondary)',
+          fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+        }}>
+          Lo que configura tu empresa, lo que ve tu cliente y lo que queda como prueba. Cada pantalla es
+          la del producto.
+        </p>
+        <ScreenTour
+          items={FLOW} name="Pasos del flujo" mobile={mobile}
+          cta={(step) => (
+            <Button
+              variant="secondary"
+              onClick={() => navigate('demo', { search: 'paso=' + (step.key === 'configura' ? 'captura' : step.key) })}
+            >Hacer este paso en la demo</Button>
+          )}
         />
       </Shell>
 
@@ -694,40 +1251,69 @@ function HomeScreen({ navigate, daysLeft }) {
           <CapabilityCard
             icon={<Icon name="file-check" size={28} />}
             title="Consentimiento verificable"
-            body="Cada permiso queda registrado con fecha, canal, versión de términos y el texto exacto que aceptó el titular."
+            body="Cada permiso queda registrado con fecha, versión de términos y el texto exacto que aceptó el titular."
             linkLabel="Ver la captura"
-            onClick={() => navigate('modulos')}
+            href={hrefFor('demo', { search: 'paso=captura' })}
           />
           <CapabilityCard
             icon={<Icon name="clock" size={28} />}
-            title="Solicitudes BARCOP en plazo"
-            body="Los 30 días que fija la ley vienen integrados: alertas, responsables y respuesta con evidencia adjunta."
+            title="Solicitudes de derechos en plazo"
+            body="Los 30 días que fija la ley vienen integrados: folio, acuse, alertas y respuesta con su documento."
             linkLabel="Ver el flujo"
-            onClick={() => navigate('modulos')}
+            href={hrefFor('demo', { search: 'paso=derechos' })}
           />
           <CapabilityCard
             icon={<Icon name="file-text" size={28} />}
             title="Expediente exportable"
             body="Ante una fiscalización de la APDP, el expediente completo de evidencia se exporta en minutos, no en semanas."
-            linkLabel="Ver un expediente"
-            onClick={() => navigate('plataforma')}
+            linkLabel="Ver la evidencia"
+            href={hrefFor('demo', { search: 'paso=evidencia' })}
           />
         </div>
       </Shell>
 
-      <DarkFeatureBand
-        tone="slate"
-        eyebrow="Evidencia"
-        heading="Registros estructurados, no archivos estáticos"
-        body="Cada captura genera un sello de tiempo, la versión exacta de los términos y un hash de evidencia inalterable. Los comprobantes se generan on-demand desde el registro, así que siempre reflejan la realidad de la base de datos."
-        actions={bandActions}
-      />
+      {/* The band's own container and ground, with the record it describes
+          beside the words instead of an empty half. */}
+      <DarkFeatureBand tone="slate" style={{ padding: 'clamp(56px,8vw,96px) 0' }}>
+        <div style={{
+          display: 'grid', gap: 'clamp(32px,5vw,72px)', alignItems: 'center', marginTop: 'calc(var(--space-56) * -1)',
+          gridTemplateColumns: mobile ? '1fr' : '5fr 7fr'
+        }}>
+          <div style={{ minWidth: 0 }}>
+            <MonoLabel tone="soft">Evidencia</MonoLabel>
+            <h2 className="cns-section-display" style={{
+              margin: '24px 0 0', fontSize: 'clamp(32px,4.6vw,56px)', letterSpacing: '-0.03em', textWrap: 'balance'
+            }}>
+              Registros estructurados, no archivos estáticos
+            </h2>
+            <p className="cns-body-large" style={{
+              margin: '24px 0 0', maxWidth: '52ch', color: 'rgba(255,255,255,.72)',
+              fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+            }}>
+              Cada captura genera un sello de tiempo, la versión exacta de los términos y un hash de
+              evidencia inalterable. Los comprobantes se generan on-demand desde el registro, así que
+              siempre reflejan la realidad de la base de datos.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24, marginTop: 40 }}>
+              {bandActions}
+            </div>
+          </div>
+          <AppFrame
+            tone="dark" scene="empresa-ficha" chrome="content" width={1040} height={720}
+            label="El registro de un titular: consentimientos, identidad y línea de tiempo"
+            address={APP_HOST + '/dashboard/tienda-alba/subjects'}
+          />
+        </div>
+      </DarkFeatureBand>
 
       <Shell pad={`clamp(64px,9vw,120px) ${GUTTER}`}>
-        <MonoLabel>Módulos</MonoLabel>
-        <div style={{ marginTop: 32 }}>
-          <ModuleGrid navigate={navigate} />
-        </div>
+        <h2 className="cns-section-heading" style={{
+          margin: '0 0 clamp(32px,5vw,56px)', maxWidth: '22ch',
+          fontSize: 'clamp(30px,4.4vw,48px)', letterSpacing: '-0.025em'
+        }}>
+          Tres módulos, un solo registro
+        </h2>
+        <ModuleGrid />
       </Shell>
     </main>
   );
@@ -737,7 +1323,27 @@ function HomeScreen({ navigate, daysLeft }) {
  * Screen: Plataforma
  * ------------------------------------------------------------------ */
 
-function PlataformaScreen({ navigate, narrow }) {
+/* What each pillar looks like in the product: the screen a visitor would be
+   taken to if they asked "show me". */
+const PILAR_SCREENS = [
+  {
+    scene: 'empresa-solicitud-detalle', address: APP_HOST + '/dashboard/tienda-alba/rights-requests',
+    label: 'Una solicitud de derechos en la consola, con su folio, plazo y respuesta', step: 'derechos',
+    link: 'Ver una solicitud en la demo'
+  },
+  {
+    scene: 'empresa-ficha', address: APP_HOST + '/dashboard/tienda-alba/subjects',
+    label: 'El registro de un titular: sus consentimientos, identidad y línea de tiempo', step: 'evidencia',
+    link: 'Ver la evidencia en la demo'
+  },
+  {
+    scene: 'empresa-integracion-instalacion', address: APP_HOST + '/dashboard/tienda-alba/integrations',
+    label: 'La instalación de una integración: el código que se pega en el sitio', step: 'captura',
+    link: 'Ver el widget en la demo'
+  }
+];
+
+function PlataformaScreen({ navigate, mobile }) {
   const bandActions = useBandActions(navigate);
 
   return (
@@ -759,30 +1365,37 @@ function PlataformaScreen({ navigate, narrow }) {
         </p>
       </Shell>
 
+      {/* The registry itself, and the widget that writes to it: every permission
+          saved on the right becomes a chained entry on the left. */}
       <Shell pad={`clamp(40px,6vw,80px) ${GUTTER} 0`}>
-        <HeroPhotoCard
-          ratio={narrow ? '4 / 3' : '21 / 9'}
-          radius="var(--radius-lg)"
-          overlay={<ConsoleOverlay />}
+        <LiveHero
+          mobile={mobile} scene="empresa-ledger-verificado"
+          label="El ledger legal de Consenty con su cadena de evidencia verificada"
+          address={APP_HOST + '/dashboard/tienda-alba/ledger'}
         />
       </Shell>
 
       <Shell pad={`clamp(64px,9vw,120px) ${GUTTER}`}>
-        <MonoLabel>3 pilares</MonoLabel>
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
-          gap: 'clamp(28px,3.5vw,32px)', marginTop: 32
+        <h2 className="cns-section-heading" style={{
+          margin: 0, maxWidth: '20ch', fontSize: 'clamp(30px,4.4vw,48px)',
+          letterSpacing: '-0.025em', textWrap: 'balance'
         }}>
-          {PILARES.map(([num, title, body]) => (
-            <div key={num} style={{ borderTop: '1px solid var(--border-default)', paddingTop: 28 }}>
-              <MonoLabel tone="indigo">{num}</MonoLabel>
-              <h2 className="cns-card-heading" style={{ margin: '16px 0 0', fontSize: 'clamp(24px,2.6vw,32px)' }}>
-                {title}
-              </h2>
-              <p className="cns-body" style={{ margin: '16px 0 0', color: 'var(--text-secondary)', textWrap: 'pretty' }}>
-                {body}
-              </p>
-            </div>
+          Tres pilares, cada uno en pantalla
+        </h2>
+        <div style={{ display: 'grid', gap: 'clamp(56px,8vw,112px)', marginTop: 'clamp(40px,6vw,72px)' }}>
+          {PILARES.map(([num, title, body], i) => (
+            <ProductSplit
+              key={num} level={3} mobile={mobile} reverse={i % 2 === 1}
+              eyebrow={'Pilar ' + num} heading={title} body={body}
+              frame={
+                <AppFrame
+                  scene={PILAR_SCREENS[i].scene} label={PILAR_SCREENS[i].label}
+                  address={PILAR_SCREENS[i].address} chrome="content" width={1040} height={720}
+                />
+              }
+            >
+              <DemoLink navigate={navigate} step={PILAR_SCREENS[i].step}>{PILAR_SCREENS[i].link}</DemoLink>
+            </ProductSplit>
           ))}
         </div>
       </Shell>
@@ -790,7 +1403,7 @@ function PlataformaScreen({ navigate, narrow }) {
       <DarkFeatureBand
         tone="slate"
         eyebrow="Evidencia"
-        heading="Respuesta inmediata ante una fiscalización"
+        heading={bandHeading("Respuesta inmediata ante una fiscalización")}
         body="Consenty exporta expedientes de evidencia con trazabilidad completa: sello de tiempo, versión de términos, hash y canal de cada captura. Demuestra la legitimidad del tratamiento y audita internamente el uso del producto."
         actions={bandActions}
       />
@@ -802,123 +1415,39 @@ function PlataformaScreen({ navigate, narrow }) {
         }}>
           Tres módulos, un solo registro
         </h2>
-        <ModuleGrid navigate={navigate} />
+        <ModuleGrid />
       </Shell>
     </main>
   );
 }
 
 /* ------------------------------------------------------------------ *
- * Screen: Módulos — includes the live consent widget
+ * Screen: Módulos — each module is shown as the product itself
  * ------------------------------------------------------------------ */
 
-const PURPOSES = [
-  { key: 'comerciales', title: 'Comunicaciones comerciales', detail: 'Ofertas y novedades por correo.' },
-  { key: 'perfilamiento', title: 'Perfilamiento y recomendaciones', detail: 'Personalizar lo que ves según tu actividad.' },
-  { key: 'terceros', title: 'Compartir con terceros', detail: 'Socios comerciales seleccionados.' }
-];
-
-/**
- * Capture widget exactly as a titular sees it: nothing pre-checked, one toggle per
- * purpose, and an evidence record emitted on save.
- */
-function ConsentWidget() {
-  const [accepted, setAccepted] = useState([false, false, false]);
-  const [evidence, setEvidence] = useState(null);
-
-  const toggle = (i) => () => {
-    setAccepted((prev) => prev.map((v, n) => (n === i ? !v : v)));
-    setEvidence(null); // the receipt describes a saved state, not a pending one
-  };
-
-  const save = () => setEvidence(Date.now());
-
-  const chosen = PURPOSES.filter((p, i) => accepted[i]).map((p) => p.key);
-  const record = evidence && {
-    timestamp: new Date(evidence).toISOString().replace('T', ' ').slice(0, 19) + ' UTC',
-    finalidades: chosen.length ? chosen.join(', ') : 'ninguna aceptada',
-    hash: 'sha256:' + (evidence.toString(16) + '9f2c41ab7d').slice(0, 16)
-  };
-
+function MailNote({ mail }) {
   return (
     <div style={{
-      flex: '1 1 320px', minWidth: 0, background: 'var(--surface-card)',
-      border: '1px solid var(--border-utility)', borderRadius: 'var(--radius-lg)', overflow: 'hidden'
+      minHeight: 44, display: 'flex', alignItems: 'center', marginBottom: 10,
+      fontSize: 14, lineHeight: 1.4, color: 'var(--text-secondary)'
     }}>
-      <div style={{ padding: '24px clamp(18px,2.5vw,28px) 18px', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="cns-feature-heading">Tus preferencias de datos</div>
-        <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-          Términos v2.4 · Puedes cambiarlas cuando quieras.
-        </p>
-      </div>
-
-      <div style={{ padding: '4px clamp(18px,2.5vw,28px)' }}>
-        {PURPOSES.map((p, i) => (
-          <div key={p.key} style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16,
-            padding: '18px 0',
-            borderBottom: i < PURPOSES.length - 1 ? '1px solid var(--border-subtle)' : undefined
-          }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 500 }}>{p.title}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 4 }}>{p.detail}</div>
-            </div>
-            <button
-              onClick={toggle(i)}
-              role="switch" aria-checked={accepted[i]} aria-label={p.title}
-              style={{
-                flex: '0 0 auto', width: 48, height: 28, borderRadius: 'var(--radius-full)',
-                border: '1px solid var(--border-default)', cursor: 'pointer', padding: 2,
-                display: 'flex', alignItems: 'center',
-                justifyContent: accepted[i] ? 'flex-end' : 'flex-start',
-                background: accepted[i] ? 'var(--color-indigo)' : 'var(--border-utility)',
-                transition: 'var(--transition-color)'
-              }}
-            >
-              <span style={{ width: 22, height: 22, borderRadius: 'var(--radius-full)', background: '#fff', display: 'block' }} />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div style={{
-        padding: '18px clamp(18px,2.5vw,28px) 24px', borderTop: '1px solid var(--border-subtle)',
-        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px 20px'
-      }}>
-        <Button variant="primary" size="sm" onClick={save}>Guardar preferencias</Button>
-        <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Se registra con sello de tiempo y hash</span>
-      </div>
-
-      {record && (
-        <div
-          role="status"
-          style={{ background: 'var(--surface-inverse)', color: 'var(--color-on-dark)', padding: '24px clamp(18px,2.5vw,28px)' }}
-        >
-          <MonoLabel tone="soft">Registro de evidencia</MonoLabel>
-          <div style={{
-            marginTop: 16, display: 'grid', gap: 10,
-            fontFamily: 'var(--font-mono)', fontSize: 12, color: 'rgba(255,255,255,.72)'
-          }}>
-            {[
-              ['timestamp', record.timestamp, false],
-              ['finalidades', record.finalidades, false],
-              ['versión términos', 'v2.4', false],
-              ['canal', 'web / checkout', false],
-              ['hash', record.hash, true]
-            ].map(([k, v, wrap]) => (
-              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-                <span>{k}</span>
-                <span style={{ color: 'var(--color-on-dark)', wordBreak: wrap ? 'break-all' : undefined }}>{v}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {mail ? (
+        <span style={{
+          background: 'var(--surface-wash-indigo)', borderRadius: 'var(--radius-md)',
+          padding: '10px 14px', color: 'var(--color-ink)'
+        }}>
+          <span style={{ color: 'var(--text-secondary)' }}>Correo simulado para {mail.email}: </span>
+          tu código es{' '}
+          <strong style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.1em' }}>{mail.code}</strong>
+        </span>
+      ) : 'Pruébalo como lo ve tu cliente: es el widget real, con datos de ejemplo.'}
     </div>
   );
 }
 
-function ModulosScreen({ navigate }) {
+function ModulosScreen({ navigate, mobile }) {
+  const [mail, onWidgetMessage] = useSimulatedMail();
+
   return (
     <main id="contenido">
       <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
@@ -938,10 +1467,13 @@ function ModulosScreen({ navigate }) {
         </p>
       </Shell>
 
-      {/* Componente 1 — captura omnicanal */}
+      {/* Componente 1 — captura: the widget, live, inside a customer's form */}
       <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(40px,6vw,80px)' }}>
-          <div style={{ flex: '1 1 380px', minWidth: 0 }}>
+        <div id="captura" style={{
+          display: 'grid', gap: 'clamp(32px,5vw,72px)', alignItems: 'start',
+          gridTemplateColumns: mobile ? '1fr' : 'minmax(0,6fr) minmax(360px,5fr)'
+        }}>
+          <div style={{ minWidth: 0 }}>
             <MonoLabel>Componente 1</MonoLabel>
             <h2 className="cns-section-heading" style={{
               margin: '16px 0 0', maxWidth: '20ch', fontSize: 'clamp(28px,4.2vw,48px)',
@@ -963,137 +1495,111 @@ function ModulosScreen({ navigate }) {
               <CheckRow>Canales offline: sucursal, call center, terreno</CheckRow>
               <CheckRow last>CRM y plataformas de marketing vía API o webhook</CheckRow>
             </div>
+            <p className="cns-body" style={{ margin: '28px 0 0', maxWidth: '52ch', color: 'var(--text-secondary)', textWrap: 'pretty' }}>
+              En el formulario de al lado ninguna casilla viene marcada, cada permiso se acepta por
+              separado y, al guardar, la decisión queda en el ledger.
+            </p>
+            <DemoLink navigate={navigate} step="captura">Ver cómo llega a la consola</DemoLink>
           </div>
-
-          <div style={{
-            flex: '1 1 320px', minWidth: 0, background: 'var(--surface-card-stone)',
-            borderRadius: 'var(--radius-lg)', padding: 'clamp(24px,3vw,36px)'
-          }}>
-            <MonoLabel>Alta del titular</MonoLabel>
-            <div style={{ marginTop: 28, display: 'grid', gap: 0 }}>
-              {ALTA_STEPS.map(([num, title, body], i) => (
-                <div key={num} style={{
-                  display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 20,
-                  paddingBottom: i < ALTA_STEPS.length - 1 ? 24 : 0,
-                  paddingTop: i > 0 ? 24 : 0,
-                  borderBottom: i < ALTA_STEPS.length - 1 ? '1px solid var(--border-utility)' : undefined
-                }}>
-                  <MonoLabel tone="indigo">{num}</MonoLabel>
-                  <div>
-                    <div className="cns-feature-heading">{title}</div>
-                    <p className="cns-body" style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Shell>
-
-      {/* Widget de captura — interactive */}
-      <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
-        <div style={{
-          background: 'var(--surface-wash-mist)', border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-xl)', padding: 'clamp(24px,4vw,56px)'
-        }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(32px,5vw,64px)' }}>
-            <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-              <MonoLabel tone="indigo">Widget de captura</MonoLabel>
-              <h2 className="cns-section-heading" style={{
-                margin: '20px 0 0', maxWidth: '18ch', fontSize: 'clamp(28px,4.2vw,48px)',
-                letterSpacing: '-0.025em', textWrap: 'balance'
-              }}>
-                Pruébalo como lo ve tu cliente
-              </h2>
-              <p className="cns-body-large" style={{
-                margin: '24px 0 0', maxWidth: '46ch', color: 'var(--text-secondary)',
-                fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
-              }}>
-                Ninguna casilla viene pre-marcada, cada finalidad se acepta por separado, y al guardar
-                se emite el registro de evidencia.
-              </p>
-            </div>
-            <ConsentWidget />
+          <div style={{ minWidth: 0 }}>
+            <MailToast mail={mail} />
+            <MailNote mail={mail} />
+            <AppFrame
+              interactive fluid scene="titular-widget"
+              label="El formulario de una tienda de ejemplo con el widget de Consenty"
+              address={SHOP_HOST + '/cotizar'} naturalHeight={680} onMessage={onWidgetMessage}
+            />
           </div>
         </div>
       </Shell>
 
       {/* Componente 2 — Panel DPO */}
-      <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
-        <MonoLabel>Componente 2</MonoLabel>
-        <h2 className="cns-section-heading" style={{
-          margin: '16px 0 24px', maxWidth: '22ch', fontSize: 'clamp(28px,4.2vw,48px)',
-          letterSpacing: '-0.025em', textWrap: 'balance'
-        }}>
-          Panel DPO: respuesta inmediata a auditorías
-        </h2>
-        <p className="cns-body-large" style={{
-          margin: '0 0 clamp(32px,5vw,48px)', maxWidth: '62ch', color: 'var(--text-secondary)',
-          fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
-        }}>
-          El Delegado de Protección de Datos o el equipo legal cuenta con un centro de mando para
-          supervisar todos los consentimientos existentes, recibir alertas de cambios y atender
-          solicitudes BARCOP de los titulares.
-        </p>
-        <AgentConsoleCard
-          title="Panel DPO · Solicitudes BARCOP"
-          status="En plazo"
-          integrations={INTEGRATIONS}
-          prompt="Exportar expediente de evidencia — titular 12.345.678-9"
-          response="Expediente listo: 14 consentimientos, 3 revocaciones, 1 solicitud de portabilidad. Trazabilidad completa desde marzo 2026."
-        />
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))',
-          gap: 'clamp(28px,3.5vw,32px)', marginTop: 'clamp(40px,5vw,56px)'
-        }}>
-          <CapabilityCard
-            icon={<Icon name="activity" size={28} />}
-            title="Supervisión continua"
-            body="Estado de cada consentimiento y revocación, por canal, finalidad y versión de términos."
+      <Shell pad={`clamp(64px,9vw,120px) ${GUTTER} 0`}>
+        <div id="panel">
+          <MonoLabel>Componente 2</MonoLabel>
+          <h2 className="cns-section-heading" style={{
+            margin: '16px 0 24px', maxWidth: '22ch', fontSize: 'clamp(28px,4.2vw,48px)',
+            letterSpacing: '-0.025em', textWrap: 'balance'
+          }}>
+            Panel DPO: respuesta inmediata a auditorías
+          </h2>
+          <p className="cns-body-large" style={{
+            margin: '0 0 clamp(32px,5vw,48px)', maxWidth: '62ch', color: 'var(--text-secondary)',
+            fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+          }}>
+            El Delegado de Protección de Datos o el equipo legal cuenta con un centro de mando para
+            supervisar todos los consentimientos existentes, recibir alertas de cambios y atender
+            solicitudes BARCOP de los titulares.
+          </p>
+          <AppFrame
+            scene="empresa-panel" label="El panel de control de Consenty con indicadores y actividad reciente"
+            address={APP_HOST + '/dashboard/tienda-alba'} height={760}
           />
-          <CapabilityCard
-            icon={<Icon name="clock" size={28} />}
-            title="Alertas y plazos"
-            body="Los 30 días legales para responder BARCOP, con avisos antes del vencimiento y responsable asignado."
-          />
-          <CapabilityCard
-            icon={<Icon name="file-text" size={28} />}
-            title="Expedientes exportables"
-            body="Evidencia técnica inalterable, lista para presentar ante la APDP o una auditoría interna."
-          />
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))',
+            gap: 'clamp(28px,3.5vw,32px)', marginTop: 'clamp(40px,5vw,56px)'
+          }}>
+            <CapabilityCard
+              icon={<Icon name="activity" size={28} />}
+              title="Supervisión continua"
+              body="Estado de cada consentimiento y revocación, por titular, permiso y versión de términos."
+            />
+            <CapabilityCard
+              icon={<Icon name="clock" size={28} />}
+              title="Alertas y plazos"
+              body="Los 30 días legales para responder una solicitud, con avisos antes del vencimiento."
+            />
+            <CapabilityCard
+              icon={<Icon name="file-text" size={28} />}
+              title="Expedientes exportables"
+              body="Evidencia técnica inalterable, lista para presentar ante la APDP o una auditoría interna."
+            />
+          </div>
         </div>
       </Shell>
 
-      {/* Componente 3 — Portal BARCOP */}
-      <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} clamp(64px,9vw,120px)`}>
-        <MonoLabel>Componente 3</MonoLabel>
-        <h2 className="cns-section-heading" style={{
-          margin: '16px 0 24px', maxWidth: '24ch', fontSize: 'clamp(28px,4.2vw,48px)',
-          letterSpacing: '-0.025em', textWrap: 'balance'
-        }}>
-          Portal de consentimientos y derechos BARCOP
-        </h2>
-        <p className="cns-body-large" style={{
-          margin: '0 0 clamp(32px,5vw,48px)', maxWidth: '62ch', color: 'var(--text-secondary)',
-          fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
-        }}>
-          La Ley 21.719 obliga a facilitar el ejercicio de derechos sin trámites burocráticos. Con su
-          cuenta activa, tus clientes acceden directamente al portal y ejercen sus derechos de forma
-          autónoma y transparente.
-        </p>
-        {/* 1px grid gap over a rule-colored ground: containment by rules, not by boxes. */}
-        <div className="cns-barcop-grid" style={{
-          display: 'grid',
-          gap: 1, background: 'var(--border-utility)', border: '1px solid var(--border-utility)',
-          borderRadius: 'var(--radius-lg)', overflow: 'hidden'
-        }}>
-          {BARCOP.map(([letter, title, body]) => (
-            <div key={letter} style={{ background: 'var(--surface-card)', padding: 'clamp(24px,3vw,32px)' }}>
-              <MonoLabel tone="indigo">{letter}</MonoLabel>
-              <h3 className="cns-feature-heading" style={{ margin: '12px 0 0' }}>{title}</h3>
-              <p className="cns-body" style={{ margin: '8px 0 0', color: 'var(--text-secondary)' }}>{body}</p>
+      {/* Componente 3 — Portal del titular */}
+      <Shell pad={`clamp(64px,9vw,120px) ${GUTTER} clamp(64px,9vw,120px)`}>
+        <div id="portal">
+          <MonoLabel>Componente 3</MonoLabel>
+          <h2 className="cns-section-heading" style={{
+            margin: '16px 0 24px', maxWidth: '24ch', fontSize: 'clamp(28px,4.2vw,48px)',
+            letterSpacing: '-0.025em', textWrap: 'balance'
+          }}>
+            Portal de consentimientos y derechos BARCOP
+          </h2>
+          <p className="cns-body-large" style={{
+            margin: '0 0 clamp(32px,5vw,48px)', maxWidth: '62ch', color: 'var(--text-secondary)',
+            fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+          }}>
+            La Ley 21.719 obliga a facilitar el ejercicio de derechos sin trámites burocráticos. Con su
+            cuenta activa, tus clientes acceden directamente al portal y ejercen sus derechos de forma
+            autónoma y transparente.
+          </p>
+          <div style={{
+            display: 'grid', gap: 'clamp(20px,2.4vw,32px)', alignItems: 'start',
+            gridTemplateColumns: mobile ? '1fr' : '1fr 1fr'
+          }}>
+            <div style={{ minWidth: 0 }}>
+              <AppFrame
+                fluid scene="titular-portal" label="El portal del titular con los permisos que otorgó"
+                address={APP_HOST + '/portal/consentimientos'} naturalHeight={640}
+              />
+              <p className="cns-body" style={{ margin: '14px 0 0', color: 'var(--text-secondary)' }}>
+                Lo que autorizó, hasta cuándo, y un botón para revocarlo.
+              </p>
             </div>
-          ))}
+            <div style={{ minWidth: 0 }}>
+              <AppFrame
+                fluid scene="titular-solicitud" label="El formulario del portal para ejercer un derecho"
+                address={APP_HOST + '/portal/solicitudes/nueva'} naturalHeight={640} chrome="content"
+              />
+              <p className="cns-body" style={{ margin: '14px 0 0', color: 'var(--text-secondary)' }}>
+                Los derechos que puede ejercer, explicados sin jerga, con folio y acuse al enviar.
+              </p>
+            </div>
+          </div>
+          <DemoLink navigate={navigate} step="portal">Usar el portal en la demo</DemoLink>
         </div>
       </Shell>
     </main>
@@ -1218,7 +1724,7 @@ function ChecklistCard({ daysLeft }) {
   );
 }
 
-function NormativaScreen({ daysLeft }) {
+function NormativaScreen({ daysLeft, navigate, mobile }) {
   return (
     <main id="contenido">
       <Shell pad={`clamp(48px,7vw,100px) ${GUTTER} 0`}>
@@ -1291,6 +1797,23 @@ function NormativaScreen({ daysLeft }) {
         </div>
       </Shell>
 
+      <Shell pad={`clamp(64px,9vw,120px) ${GUTTER} 0`}>
+        <ProductSplit
+          mobile={mobile}
+          heading="El plazo de 30 días, dentro del producto"
+          body="Cada solicitud de derechos entra con folio, acuse de recibo y fecha de vencimiento. La consola avisa antes de que venza, y la respuesta emite el documento que se le entrega al titular."
+          frame={
+            <AppFrame
+              scene="empresa-solicitud-detalle" chrome="content" width={1040} height={720}
+              label="Una solicitud de derechos en la consola, con su vencimiento y la respuesta"
+              address={APP_HOST + '/dashboard/tienda-alba/rights-requests'}
+            />
+          }
+        >
+          <DemoLink navigate={navigate} step="derechos">Presentar y responder una solicitud en la demo</DemoLink>
+        </ProductSplit>
+      </Shell>
+
       <Shell pad={`clamp(64px,9vw,120px) ${GUTTER}`}>
         <h2 className="cns-section-heading" style={{
           margin: '0 0 40px', maxWidth: '22ch', fontSize: 'clamp(30px,4.4vw,48px)', letterSpacing: '-0.025em'
@@ -1309,7 +1832,7 @@ function NormativaScreen({ daysLeft }) {
  * Screen: Recursos
  * ------------------------------------------------------------------ */
 
-function RecursosScreen() {
+function RecursosScreen({ navigate }) {
   const [filter, setFilter] = useState('Todo');
   const rows = useMemo(
     () => (filter === 'Todo' ? RECURSOS : RECURSOS.filter((r) => r.topics.indexOf(filter) !== -1)),
@@ -1344,6 +1867,22 @@ function RecursosScreen() {
           <ResearchTable rows={rows} />
         </div>
       </Shell>
+
+      <DarkFeatureBand
+        tone="slate"
+        eyebrow="Del papel al producto"
+        heading={bandHeading("Lo que explican las guías, funcionando")}
+        body="Captura un consentimiento, revísalo en el ledger y responde una solicitud de derechos en la demo: es el producto real, con datos de ejemplo, en tu navegador."
+        actions={
+          <Fragment>
+            <Button variant="primary-inverse" onClick={() => navigate('demo')}>Probar la demo</Button>
+            <a
+              data-plain {...navLinkProps('demo', navigate, BOOKING)}
+              style={{ color: 'var(--color-on-dark)', fontSize: 16 }}
+            >Agendar una reunión</a>
+          </Fragment>
+        }
+      />
     </main>
   );
 }
@@ -1351,6 +1890,28 @@ function RecursosScreen() {
 /* ------------------------------------------------------------------ *
  * Screen: Implementación
  * ------------------------------------------------------------------ */
+
+/* What weeks 2 to 4 leave running, as the screens the client ends up with. */
+const ENTREGABLES = [
+  {
+    key: 'semana-2', icon: 'list-checks', short: 'Semana 2', side: 'Semana 2 · Configuración',
+    title: 'Tus datos y permisos, definidos',
+    body: 'Qué datos tratas, con qué base legal y por cuánto tiempo, con el texto que legal aprobó.',
+    scene: 'empresa-datos', address: APP_HOST + '/dashboard/tienda-alba/data-types'
+  },
+  {
+    key: 'semana-3', icon: 'code-xml', short: 'Semana 3', side: 'Semana 3 · Integración',
+    title: 'El widget instalado en tu formulario',
+    body: 'Un fragmento de código por formulario. Cada envío llega con un comprobante que tu servidor valida.',
+    scene: 'empresa-integracion-instalacion', address: APP_HOST + '/dashboard/tienda-alba/integrations'
+  },
+  {
+    key: 'semana-4', icon: 'door-open', short: 'Semana 4', side: 'Semana 4 · Despliegue',
+    title: 'El portal abierto a tus titulares',
+    body: 'Cada persona entra con su RUT y correo, ve lo que autorizó y ejerce sus derechos sin intermediarios.',
+    scene: 'titular-portal', address: APP_HOST + '/portal/consentimientos', fluid: true
+  }
+];
 
 function ImplementacionScreen({ navigate, mobile }) {
   const bandActions = useBandActions(navigate);
@@ -1392,10 +1953,30 @@ function ImplementacionScreen({ navigate, mobile }) {
         </div>
       </Shell>
 
+      <Shell pad={`clamp(64px,9vw,120px) ${GUTTER} 0`}>
+        <h2 className="cns-section-heading" style={{
+          margin: 0, maxWidth: '22ch', fontSize: 'clamp(30px,4.4vw,48px)',
+          letterSpacing: '-0.025em', textWrap: 'balance'
+        }}>
+          Lo que queda funcionando cada semana
+        </h2>
+        <p className="cns-body-large" style={{
+          margin: '20px 0 clamp(32px,5vw,56px)', maxWidth: '58ch', color: 'var(--text-secondary)',
+          fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
+        }}>
+          Los entregables no son documentos: son pantallas del producto ya configuradas para tu
+          empresa.
+        </p>
+        <ScreenTour
+          items={ENTREGABLES} name="Entregables por semana" mobile={mobile}
+          cta={() => <Button variant="secondary" onClick={() => navigate('demo')}>Probar la demo</Button>}
+        />
+      </Shell>
+
       <DarkFeatureBand
         tone="indigo"
         eyebrow="Soporte"
-        heading="No necesitas un área de TI para partir"
+        heading={bandHeading("No necesitas un área de TI para partir")}
         body="Widgets listos para pegar, APIs livianas y acompañamiento durante las cuatro semanas. Si tu equipo es pequeño, nosotros hacemos la integración."
         actions={bandActions}
         style={{ marginTop: 'clamp(64px,9vw,120px)' }}
@@ -1405,25 +1986,469 @@ function ImplementacionScreen({ navigate, mobile }) {
 }
 
 /* ------------------------------------------------------------------ *
- * Screen: Agendar demo
+ * Screen: Demo — the product, used from both sides, then the booking form
  * ------------------------------------------------------------------ */
 
-function DemoScreen() {
+const CONSOLE_PATH = '/dashboard/tienda-alba';
+
+/* The guided tour. Each step says whose turn it is, what to do in the real
+   screen, which screens both sides show, and which event from the app (see the
+   demo's bridge) proves the visitor did it. `requires` is the past a step
+   needs when someone lands on it directly. */
+const TOUR = [
+  {
+    key: 'captura', label: 'Capturar', side: 'cliente',
+    title: 'Pide el consentimiento en un formulario',
+    todo: [
+      'Pulsa «Completar con datos de ejemplo» y luego «Completar ahora».',
+      'Pide el código, escríbelo y acepta que Consenty guarde tu identidad.',
+      'Marca los permisos que quieras y guarda tus preferencias.'
+    ],
+    client: 'titular-widget', company: CONSOLE_PATH + '/ledger',
+    doneBy: ['cliente', 'consents-saved'],
+    done: 'Guardado. Mira la consola: las decisiones ya están en el ledger.'
+  },
+  {
+    key: 'evidencia', label: 'Evidencia', side: 'empresa', requires: 'ana-granted',
+    title: 'Comprueba la prueba en el ledger',
+    todo: [
+      'Las filas de arriba son las decisiones recién guardadas, con su sello de tiempo y su hash.',
+      'Pulsa «Verificar integridad» para recalcular toda la cadena.'
+    ],
+    client: 'titular-widget', company: CONSOLE_PATH + '/ledger',
+    doneBy: ['empresa', 'ledger-verified'],
+    done: 'Cadena verificada. Si alguien alterara una fila, aquí aparecería rota.'
+  },
+  {
+    key: 'portal', label: 'Revocar', side: 'cliente', requires: 'ana-granted',
+    title: 'Revoca un permiso desde el portal',
+    todo: [
+      'Este es el portal que recibe cada titular, con todo lo que autorizó.',
+      'Pulsa «Revocar» en «Enviar promociones» y luego «Guardar consentimientos».'
+    ],
+    client: 'titular-portal', company: CONSOLE_PATH + '/alerts',
+    doneBy: ['cliente', 'consents-saved'],
+    done: 'Revocado. La empresa recibió la alerta y el ledger sumó la revocación.'
+  },
+  {
+    key: 'derechos', label: 'Solicitar', side: 'cliente', requires: 'ana-granted',
+    title: 'Ejerce un derecho como titular',
+    todo: [
+      'Elige un derecho, por ejemplo Acceso, y sigue los pasos del formulario.',
+      'Al confirmar recibes un folio y un acuse de recibo.'
+    ],
+    client: 'titular-solicitud', company: CONSOLE_PATH + '/rights-requests',
+    doneBy: ['cliente', 'rights-request-created'],
+    done: 'Solicitud presentada. Ya está en la bandeja de la empresa, con su plazo de 30 días.'
+  },
+  {
+    key: 'respuesta', label: 'Responder', side: 'empresa', requires: 'ana-granted,ana-request',
+    title: 'Responde la solicitud dentro del plazo',
+    todo: [
+      'Abre la solicitud más reciente: es la primera de la lista.',
+      'Escribe el fundamento de la respuesta y pulsa «Emitir documento y guardar».'
+    ],
+    client: 'titular-solicitudes', company: CONSOLE_PATH + '/rights-requests',
+    doneBy: ['empresa', 'rights-request-updated'],
+    done: 'Respondida. El titular ya ve la resolución y su documento en el portal.'
+  }
+];
+
+const CLIENT_ADDRESS = {
+  'titular-widget': SHOP_HOST + '/cotizar',
+  'titular-portal': APP_HOST + '/portal/consentimientos',
+  'titular-solicitud': APP_HOST + '/portal/solicitudes/nueva',
+  'titular-solicitudes': APP_HOST + '/portal/solicitudes'
+};
+
+const COMPANY_SCENE = {
+  [CONSOLE_PATH + '/ledger']: 'empresa-ledger',
+  [CONSOLE_PATH + '/alerts']: 'empresa-alertas',
+  [CONSOLE_PATH + '/rights-requests']: 'empresa-solicitudes'
+};
+
+function tourIndex(search) {
+  const wanted = new URLSearchParams(search).get('paso');
+  const found = TOUR.findIndex((step) => step.key === wanted);
+  return found === -1 ? 0 : found;
+}
+
+function ProductDemo({ place, mobile }) {
+  // A visit that starts at the first step starts clean; a deep link to a later
+  // step keeps whatever is there and asks the demo for the past it needs.
+  const [run, setRun] = useState(() => ({ id: 0, start: tourIndex(place.search) }));
+  const [index, setIndex] = useState(run.start);
+  const [done, setDone] = useState({});
+  const [mail, setMail] = useState(null);
+  const [side, setSide] = useState(TOUR[run.start].side);
+  const [companyPath, setCompanyPath] = useState(TOUR[run.start].company);
+  const companyApi = useRef(null);
+  const firstMount = useRef(true);
+  const viewportHeight = useViewportHeight();
+  const step = TOUR[index];
+  const stepRef = useRef(step);
+  stepRef.current = step;
+
+  // A link to another step while already on the page (the home page's cards).
+  useEffect(() => {
+    const wanted = tourIndex(place.search);
+    if (new URLSearchParams(place.search).has('paso')) goTo(wanted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [place.search, place.visit]);
+
+  function goTo(next) {
+    setIndex(next);
+    setSide(TOUR[next].side);
+    setMail(null);
+    if (TOUR[next].company !== companyPath) {
+      setCompanyPath(TOUR[next].company);
+      // The console is one signed-in app: it changes screen, it is not reloaded.
+      if (companyApi.current) companyApi.current.send('navigate', { path: TOUR[next].company });
+    }
+  }
+
+  // Only the first screen of a run starts from a clean slate; coming back to
+  // the first step later must not erase what the visitor has done since.
+  useEffect(() => { firstMount.current = false; }, [run.id]);
+
+  function restart() {
+    firstMount.current = true;
+    setRun((current) => ({ id: current.id + 1, start: 0 }));
+    setIndex(0);
+    setDone({});
+    setMail(null);
+    setSide(TOUR[0].side);
+    setCompanyPath(TOUR[0].company);
+  }
+
+  const onEvent = (from) => (type, payload) => {
+    if (type === 'otp-sent') setMail(payload);
+    if (type === 'otp-verified') setMail(null);
+    const current = stepRef.current;
+    if (current.doneBy[0] === from && current.doneBy[1] === type) {
+      setDone((state) => ({ ...state, [current.key]: true }));
+    }
+  };
+
+  const isDone = Boolean(done[step.key]);
+  const last = index === TOUR.length - 1;
+  const fresh = run.start === 0;
+  // Both screens and the status line above them should fit under the header.
+  const frameHeight = mobile
+    ? Math.max(460, Math.min(640, viewportHeight - 300))
+    : Math.max(520, Math.min(760, viewportHeight - 250));
+
+  const mailNote = mail && (
+    <div style={{
+      background: 'var(--surface-wash-indigo)', borderRadius: 'var(--radius-md)',
+      padding: '10px 14px', fontSize: 14, lineHeight: 1.4
+    }}>
+      <span style={{ color: 'var(--text-secondary)' }}>Correo simulado para {mail.email}: </span>
+      tu código es{' '}
+      <strong style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.1em' }}>{mail.code}</strong>
+    </div>
+  );
+  const doneNote = isDone && (
+    <div role="status" style={{
+      display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 16px',
+      borderLeft: '2px solid var(--color-success)', paddingLeft: 14, fontSize: 15, lineHeight: 1.4
+    }}>
+      <span style={{ flex: '1 1 260px', textWrap: 'pretty' }}>
+        {step.done}{last ? ' Ese es el recorrido completo.' : ''}
+      </span>
+      {!last && (
+        <Button variant="primary" size="sm" onClick={() => goTo(index + 1)}>
+          Siguiente: {TOUR[index + 1].label.toLowerCase()}
+        </Button>
+      )}
+    </div>
+  );
+
+  const client = (
+    <AppFrame
+      key={`cliente-${run.id}-${step.client}`}
+      interactive fluid eager frameId="cliente"
+      scene={step.client} address={CLIENT_ADDRESS[step.client]}
+      label="Lo que ve el cliente de la tienda de ejemplo"
+      reset={fresh && firstMount.current && index === 0}
+      requires={fresh ? undefined : step.requires}
+      fitHeight={frameHeight} onMessage={onEvent('cliente')}
+    />
+  );
+  const company = (
+    <AppFrame
+      key={`empresa-${run.id}`}
+      interactive eager frameId="empresa" apiRef={companyApi}
+      scene={COMPANY_SCENE[TOUR[run.start].company]}
+      address={APP_HOST + companyPath}
+      label="La consola de Consenty de la empresa de ejemplo"
+      requires={fresh ? undefined : TOUR[run.start].requires}
+      width={1180} fitHeight={frameHeight} onMessage={onEvent('empresa')}
+    />
+  );
+
+  return (
+    <div>
+      <MailToast mail={mail} />
+      <div role="tablist" aria-label="Pasos de la demo" className="cns-flow-tabs cns-flow-tabs--row">
+        {TOUR.map((item, i) => (
+          <button
+            key={item.key} role="tab" type="button" className="cns-flow-tab"
+            id={'demo-tab-' + item.key} aria-selected={i === index} aria-controls="demo-guia"
+            tabIndex={i === index ? 0 : -1}
+            onClick={() => goTo(i)} onKeyDown={tabKeyHandler(TOUR.length, index, goTo)}
+          >
+            <span
+              className="cns-flow-tab__title"
+              style={done[item.key] ? { color: 'var(--color-success)' } : undefined}
+            >
+              {item.label}
+              {done[item.key] && <span className="cns-visually-hidden"> (hecho)</span>}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="demo-guia" role="tabpanel" aria-labelledby={'demo-tab-' + step.key}
+        style={{ padding: 'clamp(18px,2.2vw,28px) 0' }}
+      >
+        <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+          {step.side === 'cliente' ? 'Ahora eres el cliente' : 'Ahora eres la empresa'}
+        </span>
+        <h2 className="cns-feature-heading" style={{
+          margin: '4px 0 0', fontSize: 'clamp(20px,2vw,26px)', textWrap: 'balance'
+        }}>{step.title}</h2>
+        <ol style={{
+          margin: '12px 0 0', paddingLeft: 20, display: 'grid', gap: 4,
+          fontSize: 15, lineHeight: 1.5, color: 'var(--text-secondary)', maxWidth: '80ch'
+        }}>
+          {step.todo.map((line) => <li key={line}>{line}</li>)}
+        </ol>
+      </div>
+
+      {mobile && (
+        <div role="tablist" aria-label="Lado de la demo" className="cns-flow-tabs cns-flow-tabs--row"
+          style={{ marginBottom: 16 }}>
+          {[['cliente', 'Tu cliente'], ['empresa', 'Tu empresa']].map(([key, label]) => (
+            <button
+              key={key} role="tab" type="button" className="cns-flow-tab"
+              aria-selected={side === key} onClick={() => setSide(key)}
+            >
+              <span className="cns-flow-tab__title">{label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* What just happened sits right above the screens, where the visitor is
+          looking: the one-time code over the client's side, the result of the
+          step over the company's. The row keeps its height so nothing jumps. */}
+      {mobile ? (
+        <div style={{ display: 'grid', gap: 10, marginBottom: 12 }}>{mailNote}{doneNote}</div>
+      ) : (
+        <div style={{
+          display: 'grid', gap: 20, alignItems: 'center', minHeight: 52, marginBottom: 10,
+          gridTemplateColumns: 'minmax(360px,440px) minmax(0,1fr)'
+        }}>
+          <div>{mailNote || <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Tu cliente</span>}</div>
+          <div>{doneNote || <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Tu empresa</span>}</div>
+        </div>
+      )}
+
+      <div style={{
+        display: 'grid', gap: 20, alignItems: 'start',
+        gridTemplateColumns: mobile ? '1fr' : 'minmax(360px,440px) minmax(0,1fr)'
+      }}>
+        <div style={{ minWidth: 0, display: mobile && side !== 'cliente' ? 'none' : 'block' }}>{client}</div>
+        <div style={{ minWidth: 0, display: mobile && side !== 'empresa' ? 'none' : 'block' }}>{company}</div>
+      </div>
+
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between',
+        gap: '12px 24px', marginTop: 20, fontSize: 14, color: 'var(--text-tertiary)'
+      }}>
+        <span style={{ maxWidth: '70ch', textWrap: 'pretty' }}>
+          Empresa, personas y datos son ficticios. La aplicación corre en tu navegador: lo que
+          escribas no se envía ni se guarda en ningún servidor.
+        </span>
+        <button type="button" onClick={restart} style={{
+          background: 'none', border: 0, padding: 0, cursor: 'pointer', fontSize: 14,
+          color: 'var(--color-ink)', textDecoration: 'underline', textUnderlineOffset: 3
+        }}>Reiniciar la demo</button>
+      </div>
+    </div>
+  );
+}
+
+const BOOKING_ERRORS = {
+  rate: 'Recibimos varias solicitudes desde tu red. Inténtalo de nuevo en una hora.',
+  invalid: 'Revisa los datos marcados e inténtalo de nuevo.',
+  failed: 'No pudimos enviar tu solicitud. Inténtalo de nuevo en unos minutos.'
+};
+
+function bookingFieldError(field, value) {
+  const text = value.trim();
+  if (field.required && !text) return 'Completa este campo.';
+  if (field.type === 'email' && text && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
+    return 'Escribe un correo válido.';
+  }
+  return null;
+}
+
+/**
+ * The "Agendar demo" form. It posts to the app, where the request shows up for
+ * Consenty's team under Plataforma → Demos; the thank-you appears only once the
+ * app has accepted it, so nobody is told "we will write to you" about a request
+ * that never arrived.
+ *
+ * Built from the design system's Input and Button rather than its
+ * ContactFormCard, which renders the same card but gives its fields no name
+ * and its caller no values.
+ */
+function BookingForm({ onSent }) {
+  const [values, setValues] = useState(() => (
+    DEMO_FIELDS.reduce((all, field) => ({ ...all, [field.name]: '' }), {})
+  ));
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState('idle');
+  const [problem, setProblem] = useState(null);
+  const trapRef = useRef(null);
+  const sending = status === 'sending';
+
+  const setValue = (name) => (e) => {
+    const value = e.target.value;
+    setValues((current) => ({ ...current, [name]: value }));
+    if (errors[name]) setErrors((current) => ({ ...current, [name]: null }));
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (sending) return;
+    const found = {};
+    for (const field of DEMO_FIELDS) {
+      const message = bookingFieldError(field, values[field.name]);
+      if (message) found[field.name] = message;
+    }
+    setErrors(found);
+    const first = DEMO_FIELDS.find((field) => found[field.name]);
+    if (first) {
+      setProblem(BOOKING_ERRORS.invalid);
+      const input = e.currentTarget.elements.namedItem(first.name);
+      if (input && input.focus) input.focus();
+      return;
+    }
+
+    setStatus('sending');
+    setProblem(null);
+    try {
+      const response = await fetch(API_ORIGIN + '/api/public/demo-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // `website` is a field no person sees; the app drops submissions that fill it.
+        body: JSON.stringify({ ...values, website: trapRef.current ? trapRef.current.value : '' })
+      });
+      if (response.ok) {
+        onSent();
+        return;
+      }
+      setProblem(
+        response.status === 429 ? BOOKING_ERRORS.rate
+          : response.status === 422 ? BOOKING_ERRORS.invalid
+            : BOOKING_ERRORS.failed
+      );
+    } catch (cause) {
+      setProblem(BOOKING_ERRORS.failed);
+    }
+    setStatus('idle');
+  };
+
+  return (
+    <form onSubmit={submit} noValidate style={{
+      background: 'var(--color-canvas)', color: 'var(--color-ink)',
+      borderRadius: 'var(--radius-lg)', padding: 'clamp(24px,3vw,var(--space-xxl))',
+      display: 'grid', gap: 'var(--space-xl)', fontFamily: 'var(--font-ui)'
+    }}>
+      <h3 className="cns-card-heading" style={{ margin: 0, fontWeight: 400 }}>Cuéntanos de tu operación</h3>
+      <p style={{ margin: 0, fontSize: 'var(--text-body-size)', color: 'var(--text-secondary)' }}>
+        Te contactamos dentro de un día hábil para coordinar la sesión.
+      </p>
+      <div style={{
+        display: 'grid', gap: 'var(--space-lg)',
+        gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,220px),1fr))'
+      }}>
+        {DEMO_FIELDS.map((field) => (
+          <Input
+            key={field.name} name={field.name} label={field.label} type={field.type} as={field.as}
+            required={field.required} aria-required={field.required ? 'true' : undefined}
+            aria-invalid={errors[field.name] ? 'true' : undefined}
+            placeholder={field.placeholder} maxLength={field.max} autoComplete={field.autoComplete}
+            value={values[field.name]} onChange={setValue(field.name)} disabled={sending}
+            error={errors[field.name] || undefined}
+            style={field.full || field.as === 'textarea' ? { gridColumn: '1 / -1' } : undefined}
+          />
+        ))}
+      </div>
+      <div aria-hidden="true" className="cns-visually-hidden">
+        <label>
+          Sitio web
+          <input ref={trapRef} type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+        </label>
+      </div>
+      {problem && (
+        <p role="alert" style={{ margin: 0, fontSize: 15, color: 'var(--color-error)' }}>{problem}</p>
+      )}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px 20px' }}>
+        <Button variant="primary" type="submit" disabled={sending}>
+          {sending ? 'Enviando…' : 'Agendar demo comercial'}
+        </Button>
+        <span style={{ flex: '1 1 200px', fontSize: 13, color: 'var(--text-secondary)', textWrap: 'pretty' }}>
+          Tus datos llegan al equipo de Consenty para coordinar la reunión.
+        </span>
+      </div>
+    </form>
+  );
+}
+
+function DemoScreen({ place, mobile }) {
   const [sent, setSent] = useState(false);
 
   return (
     <main id="contenido">
-      <div style={{ background: 'var(--surface-band-indigo)', color: 'var(--color-on-dark)' }}>
+      {/* Kept short on purpose: this page is for using the product, and the
+          two screens should be reachable without scrolling past a hero. */}
+      <Shell pad={`clamp(28px,4vw,56px) ${GUTTER} 0`}>
+        <MonoLabel tone="indigo">Demo interactiva</MonoLabel>
+        <h1 className="cns-section-heading" style={{
+          margin: '14px 0 0', fontSize: 'clamp(30px,4.2vw,52px)',
+          letterSpacing: '-0.03em', textWrap: 'balance'
+        }}>
+          Recorre Consenty de punta a punta
+        </h1>
+        <p className="cns-body-large" style={{
+          margin: '14px 0 0', maxWidth: '84ch', color: 'var(--text-secondary)',
+          fontSize: 'clamp(16px,1.5vw,18px)', textWrap: 'pretty'
+        }}>
+          Haz de cliente y de empresa a la vez: el sitio de una tienda de ejemplo con el widget de
+          Consenty, y la consola que usa su equipo. Es el producto real con datos ficticios.
+        </p>
+      </Shell>
+
+      <Shell pad={`clamp(20px,3vw,32px) ${GUTTER} clamp(64px,9vw,120px)`}>
+        <ProductDemo place={place} mobile={mobile} />
+      </Shell>
+
+      <div id="agendar" style={{ background: 'var(--surface-band-indigo)', color: 'var(--color-on-dark)' }}>
         <Shell pad={`clamp(48px,7vw,100px) ${GUTTER}`}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(40px,6vw,80px)' }}>
             <div style={{ flex: '1 1 340px', minWidth: 0 }}>
               <MonoLabel tone="soft">Agendar demo</MonoLabel>
-              <h1 className="cns-section-display" style={{
+              <h2 className="cns-section-display" style={{
                 margin: '20px 0 0', maxWidth: '16ch', fontSize: 'clamp(32px,5.6vw,60px)',
                 letterSpacing: '-0.03em', textWrap: 'balance'
               }}>
                 ¿Listos para proteger su negocio?
-              </h1>
+              </h2>
               <p className="cns-body-large" style={{
                 margin: '24px 0 0', maxWidth: '48ch', color: 'rgba(255,255,255,.72)',
                 fontSize: 'clamp(16px,1.6vw,18px)', textWrap: 'pretty'
@@ -1437,7 +2462,7 @@ function DemoScreen() {
               }}>
                 {[
                   'Revisión de tus canales de captura actuales',
-                  'Demostración del panel DPO y del portal de titulares',
+                  'La misma demo, con tus formularios y tus permisos',
                   'Plan de 4 semanas con responsables y entregables'
                 ].map((line) => (
                   <div key={line} style={{ display: 'flex', gap: 12 }}>
@@ -1457,21 +2482,15 @@ function DemoScreen() {
                   borderRadius: 'var(--radius-md)', padding: 'clamp(24px,3vw,40px)'
                 }}>
                   <MonoLabel tone="soft">Solicitud recibida</MonoLabel>
-                  <h2 className="cns-card-heading" style={{ margin: '16px 0 0', fontSize: 'clamp(24px,2.6vw,32px)' }}>
+                  <h3 className="cns-card-heading" style={{ margin: '16px 0 0', fontSize: 'clamp(24px,2.6vw,32px)' }}>
                     Gracias, te escribimos pronto
-                  </h2>
+                  </h3>
                   <p className="cns-body" style={{ margin: '12px 0 0', color: 'rgba(255,255,255,.72)' }}>
                     Te contactamos dentro de un día hábil para coordinar la sesión de 30 minutos.
                   </p>
                 </div>
               ) : (
-                <ContactFormCard
-                  heading="Cuéntanos de tu operación"
-                  body="Te contactamos dentro de un día hábil para coordinar la sesión."
-                  fields={DEMO_FIELDS}
-                  submitLabel="Agendar demo comercial"
-                  onSubmit={() => setSent(true)}
-                />
+                <BookingForm onSent={() => setSent(true)} />
               )}
             </div>
           </div>
@@ -1517,7 +2536,7 @@ function CopyDomainButton() {
 }
 
 /** One numbered cause: eyebrow tags, title/body on the left, "Qué hacer" content on the right. */
-function CausaRow({ numero, tag, tagTone = 'muted', titulo, cuerpo, children }) {
+function CausaRow({ numero, tag, tagTone = 'muted', titulo, cuerpo, aviso, children }) {
   return (
     <div style={{
       display: 'grid', gap: 'clamp(16px,2vw,40px)',
@@ -1527,7 +2546,7 @@ function CausaRow({ numero, tag, tagTone = 'muted', titulo, cuerpo, children }) 
         <MonoLabel tone="indigo">{numero}</MonoLabel>
         <MonoLabel tone={tagTone}>{tag}</MonoLabel>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(24px,4vw,64px)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 'clamp(24px,4vw,64px)' }}>
         <div style={{ flex: '1 1 320px', minWidth: 0 }}>
           <h3 className="cns-card-heading" style={{ margin: 0, fontSize: 'clamp(22px,2.6vw,32px)', textWrap: 'balance' }}>
             {titulo}
@@ -1535,6 +2554,17 @@ function CausaRow({ numero, tag, tagTone = 'muted', titulo, cuerpo, children }) 
           <p className="cns-body" style={{ margin: '12px 0 0', maxWidth: '48ch', color: 'var(--text-secondary)' }}>
             {cuerpo}
           </p>
+          {/* The widget's own notice for this cause, so a visitor can match it
+              against what they saw in the form they came from. */}
+          <div style={{ marginTop: 24, maxWidth: 470 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10 }}>
+              El aviso que muestra el formulario en este caso:
+            </div>
+            <AppFrame
+              fluid autoHeight scene={aviso} naturalHeight={340}
+              label={'Aviso del widget de Consenty: ' + titulo}
+            />
+          </div>
         </div>
         {children}
       </div>
@@ -1647,7 +2677,7 @@ function VerificacionScreen() {
         <DarkFeatureBand
           tone="slate"
           eyebrow="Por qué existe"
-          heading="El registro solo prueba algo si la decisión es atribuible"
+          heading={bandHeading("El registro solo prueba algo si la decisión es atribuible")}
           body="Sin este control, cualquiera podría generar consentimientos masivos a nombre de terceros y contaminar el registro que tu empresa después tiene que exhibir. La verificación separa a las personas de los scripts antes de que se emita el código."
         >
           <div style={{
@@ -1732,6 +2762,7 @@ function VerificacionScreen() {
             }}>
               <CausaRow
                 numero="Causa 01 · la más común" tag="Puedes resolverlo tú"
+                aviso="componente-verificacion-bloqueada"
                 titulo="Un bloqueador o una VPN está filtrando el desafío"
                 cuerpo="Extensiones como bloqueadores de anuncios, antirrastreo o una VPN pueden cortar la conexión con el servicio que ejecuta el control."
               >
@@ -1758,6 +2789,7 @@ function VerificacionScreen() {
 
               <CausaRow
                 numero="Causa 02" tag="Puedes resolverlo tú"
+                aviso="componente-verificacion-sin-respuesta"
                 titulo="El desafío no respondió a tiempo"
                 cuerpo="Una conexión intermitente o una pestaña en segundo plano pueden dejar el control a medio camino."
               >
@@ -1779,6 +2811,7 @@ function VerificacionScreen() {
 
               <CausaRow
                 numero="Causa 03" tag="No depende de ti" tagTone="warning"
+                aviso="componente-verificacion-restringida"
                 titulo="El sitio incrusta el formulario de forma restringida"
                 cuerpo="El formulario está dentro de un marco con permisos limitados y el control no puede ejecutarse ahí."
               >
@@ -1803,7 +2836,7 @@ function VerificacionScreen() {
       <DarkFeatureBand
         tone="indigo"
         eyebrow="Si nada funciona"
-        heading="Tus derechos siguen vigentes"
+        heading={bandHeading("Tus derechos siguen vigentes")}
         body="Contacta a la empresa dueña del formulario y cuéntale qué pasó: puede completar tu solicitud por otra vía. Como titular, puedes ejercer tus derechos igualmente por los canales que esa empresa publique — el problema técnico no los suspende."
       />
     </main>
@@ -1815,10 +2848,11 @@ function VerificacionScreen() {
  * ------------------------------------------------------------------ */
 
 function App() {
-  const [route, navigate] = useRoute();
+  const [place, navigate] = useRoute();
+  const route = place.route;
   const width = useViewportWidth();
   const mobile = width < 1080;
-  const narrow = width < 700;
+  const onLinkClick = useMemo(() => routeLinkHandler(navigate), [navigate]);
 
   const daysLeft = useMemo(
     () => Math.max(0, Math.ceil((DEADLINE - new Date()) / 86400000)),
@@ -1826,18 +2860,21 @@ function App() {
   );
 
   const screens = {
-    inicio: <HomeScreen navigate={navigate} daysLeft={daysLeft} />,
-    plataforma: <PlataformaScreen navigate={navigate} narrow={narrow} />,
-    modulos: <ModulosScreen navigate={navigate} />,
-    normativa: <NormativaScreen daysLeft={daysLeft} />,
-    recursos: <RecursosScreen />,
+    inicio: <HomeScreen navigate={navigate} daysLeft={daysLeft} mobile={mobile} />,
+    plataforma: <PlataformaScreen navigate={navigate} mobile={mobile} />,
+    modulos: <ModulosScreen navigate={navigate} mobile={mobile} />,
+    normativa: <NormativaScreen daysLeft={daysLeft} navigate={navigate} mobile={mobile} />,
+    recursos: <RecursosScreen navigate={navigate} />,
     implementacion: <ImplementacionScreen navigate={navigate} mobile={mobile} />,
-    demo: <DemoScreen />,
+    demo: <DemoScreen place={place} mobile={mobile} />,
     verificacion: <VerificacionScreen />
   };
 
   return (
-    <div style={{ background: 'var(--surface-page)', maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div
+      onClick={onLinkClick}
+      style={{ background: 'var(--surface-page)', maxWidth: '100vw', overflowX: 'hidden' }}
+    >
       <SiteHeader route={route} navigate={navigate} mobile={mobile} />
       {screens[route]}
       <SiteFooter navigate={navigate} />

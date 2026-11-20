@@ -10,7 +10,7 @@ indexable; el SPA se monta encima y navega sin recargar.
 ```bash
 npm install       # una vez — solo Babel, para precompilar el JSX
 npm run build     # tras editar app.jsx, index.html o seo.json
-python3 -m http.server 8000   # → http://localhost:8000
+npm run dev       # compila, sirve en http://localhost:5173 y recompila al guardar
 ```
 
 GitHub Pages sirve estáticos y no ejecuta build, así que **todo el output se commitea**.
@@ -28,6 +28,8 @@ GitHub Pages sirve estáticos y no ejecuta build, así que **todo el output se c
 | `assets/favicon.svg` | El swoosh terminal del lockup, aislado como marca de pestaña. Los PNG derivados se generan con `rsvg-convert` |
 | `_ds/cohere-design-system-…/` | El design system: tokens, bundle y `readme.md` con la especificación |
 | `vendor/` | React 18.3.1 UMD auto-hospedado |
+| `scripts/sync-app-demo.mjs` | Trae el build de demo de la app a `app-demo/` |
+| `scripts/capture-posters.mjs` | Captura las imágenes fijas de `assets/app/` desde ese build |
 
 ### Generados por `npm run build` (no editar)
 
@@ -39,10 +41,60 @@ GitHub Pages sirve estáticos y no ejecuta build, así que **todo el output se c
 | `404.html` | Arranca el mismo SPA, marcado `noindex` |
 | `sitemap.xml`, `robots.txt`, `manifest.webmanifest` | Derivados de `seo.json` |
 
+### Traídos de la app (no editar)
+
+| Ruta | Qué es |
+|---|---|
+| `app-demo/` | Build de demo de `consenty_app`: la aplicación real con una API simulada. Lo genera `npm run sync:app-demo` |
+| `assets/app/*.webp` | Imagen fija de cada pantalla enmarcada, visible mientras carga la app. Las genera `npm run posters` |
+
 ## Pantallas
 
 `inicio` · `plataforma` · `modulos` · `normativa` · `recursos` · `implementacion` · `demo` ·
 `verificacion`
+
+`demo` es la demo interactiva del producto y termina en el formulario para agendar una reunión
+(`/demo/#agendar`), que es a donde apuntan los botones "Agendar demo".
+
+## El producto, en vivo
+
+El sitio no usa capturas ni maquetas: cada imagen de Consenty es Consenty. `consenty_app`
+compila un segundo build de su SPA (consola, portal del titular y widget) que corre contra una
+API simulada en el navegador, con una empresa ficticia y sin enviar nada a ningún servidor. Este
+sitio lo copia a `app-demo/` y lo enmarca con `<iframe>`.
+
+El contrato (escenas, parámetros de URL y mensajes) está en
+`../consenty_app/docs/architecture/demo-embebible.md`. De este lado lo consume un solo
+componente, `AppFrame`, en `app.jsx`:
+
+- **Vista** (por defecto): la pantalla se ve viva pero no recibe clics ni foco, para que el
+  scroll de la página nunca quede atrapado dentro. Las pantallas de consola se dibujan a tamaño
+  de escritorio y se escalan a la columna; si la columna es demasiado angosta, el marco toma su
+  ancho natural y la app muestra su propio diseño móvil.
+- **Interactivo** (`interactive`): se puede usar. Solo en `/demo/` y en el widget de `/modulos/`.
+- Los marcos se cargan al acercarse al viewport y los de vista se descargan al alejarse.
+
+`/demo/` pone dos marcos lado a lado (el cliente y la empresa) sobre el mismo estado simulado, y
+avanza su recorrido con los eventos que emite la app: el código de un solo uso que la página
+muestra como "correo simulado", el guardado de permisos, la verificación del ledger, la
+solicitud de derechos y su respuesta. `/demo/?paso=evidencia` abre un paso concreto y
+`/demo/#agendar` lleva al formulario de contacto.
+
+### Actualizar la app enmarcada
+
+```bash
+cd ../consenty_app/frontend && npm run build:demo --workspace @consenty/dashboard
+cd ../../consenty_landing
+npm run sync:app-demo     # reemplaza app-demo/ y anota el commit de la app en app-demo/VERSION
+CHROME_PATH=/ruta/a/chrome-headless-shell npm run posters   # requiere también ImageMagick
+```
+
+`app-demo/` y `assets/app/` se commitean como el resto del output. Si se añade un marco de
+tamaño fijo con una escena nueva, hay que sumarla a la lista de `scripts/capture-posters.mjs` y a
+`POSTERS` en `app.jsx`; sin imagen fija el marco muestra un texto de espera y funciona igual.
+
+`robots.txt` excluye `/app-demo/` y el documento lleva `noindex`: es un recurso de las páginas,
+no una página.
 
 ## Diferencias respecto al design canvas
 
@@ -59,7 +111,12 @@ y añade lo que un sitio real necesita:
 3. **Estado local por widget.** El calculador de brechas (`normativa`) y el widget de captura
    (`modulos`) llevan su propio estado en lugar de compartir un blob global.
 4. **Confirmación en el formulario de demo.** El canvas tenía `submitDemo: () => {}`; ahora el
-   envío muestra un acuse dentro de la misma banda índigo.
+   envío muestra un acuse dentro de la misma banda índigo, y solo cuando la app aceptó la
+   solicitud: el formulario hace `POST /api/public/demo-requests` contra `app.consenty.japs.ing`
+   (si el sitio corre en local, contra su propio origen: `npm run dev` reenvía `/api` al backend
+   de `API_TARGET`, por defecto `http://localhost:8000`) y las solicitudes aparecen en la consola de
+   Consenty, en **Plataforma → Demos**. Si el envío falla, el formulario lo dice y conserva lo
+   escrito. El formulario del boletín sigue sin enviar nada: falta definir un destino.
 5. **Accesibilidad.** Enlace para saltar al contenido, `aria-current` en la navegación,
    `role="switch"` en los toggles de finalidad, `aria-pressed` en las píldoras del checklist,
    `role="status"` en el registro de evidencia y en el resultado del checklist, y
@@ -125,7 +182,8 @@ las fuentes siguen viniendo de Google Fonts vía `tokens/fonts.css`. Los tres ti
 
 ## Pendientes heredados del design system
 
-- **Sin imágenes.** `HeroPhotoCard` se renderiza como marco stone en la proporción correcta.
+- **Sin fotografías.** Las imágenes del sitio son el producto en vivo (ver arriba);
+  `HeroPhotoCard` y `AgentConsoleCard` ya no se usan.
 - **Nombres de clientes inventados** (Andesbank, Vitalis, Nortec, Grupo Araucaria, Cimar) en
   `TrustLogoStrip`. Requieren logos reales y autorización antes de cualquier uso externo.
 - **`BlogFilterChip` usa `--text-card-heading-size` (32px)** como tamaño de fuente, así que los

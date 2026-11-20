@@ -2,11 +2,13 @@
   "name": "consenty-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Sitio estático de Consenty | consenty.japs.ing",
+  "description": "Sitio est\u00e1tico de Consenty | consenty.japs.ing",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "dev": "npm run build && node dev-server.mjs"
+    "dev": "npm run build && node dev-server.mjs",
+    "sync:app-demo": "node scripts/sync-app-demo.mjs",
+    "posters": "node scripts/capture-posters.mjs"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
